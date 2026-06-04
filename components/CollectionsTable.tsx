@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 
 const collections = [
@@ -48,10 +49,8 @@ export default function CollectionsTable() {
         ))}
       </div>
       {collections.map((c,i) => (
-        <Link key={i} href="/collection" style={{textDecoration:'none',color:'inherit'}}>
-          <div style={{display:'grid',gridTemplateColumns:'2.2rem 1fr 100px 100px 78px 96px 68px',padding:'.55rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.035)',alignItems:'center',cursor:'pointer',transition:'background .1s'}}
-            onMouseEnter={e=>(e.currentTarget.style.background='rgba(255,255,255,.022)')}
-            onMouseLeave={e=>(e.currentTarget.style.background='transparent')}>
+        <Link key={i} href="/collection" style={{textDecoration:'none',color:'inherit',display:'block'}}>
+          <div style={{display:'grid',gridTemplateColumns:'2.2rem 1fr 100px 100px 78px 96px 68px',padding:'.55rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.035)',alignItems:'center',cursor:'pointer'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.18)'}}>{c.rank}</div>
             <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
               <div style={{width:'34px',height:'34px',borderRadius:'7px',background:colors[i],flexShrink:0,position:'relative',overflow:'hidden'}}>
