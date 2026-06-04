@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 const collections = [
   {rank:1, name:'Ethereal Voids', type:'generative', floor:0.12, offer:0.10, chg:143.2, vol:38.4, listed:165},
   {rank:2, name:'Runic Beasts', type:'pfp', floor:0.07, offer:0.06, chg:89.5, vol:24.1, listed:88},
@@ -46,25 +48,29 @@ export default function CollectionsTable() {
         ))}
       </div>
       {collections.map((c,i) => (
-        <div key={i} style={{display:'grid',gridTemplateColumns:'2.2rem 1fr 100px 100px 78px 96px 68px',padding:'.55rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.035)',alignItems:'center',cursor:'pointer'}}>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.18)'}}>{c.rank}</div>
-          <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
-            <div style={{width:'34px',height:'34px',borderRadius:'7px',background:colors[i],flexShrink:0,position:'relative',overflow:'hidden'}}>
-              <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%, ${accents[i]}88, transparent 70%)`}} />
+        <Link key={i} href="/collection" style={{textDecoration:'none',color:'inherit'}}>
+          <div style={{display:'grid',gridTemplateColumns:'2.2rem 1fr 100px 100px 78px 96px 68px',padding:'.55rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.035)',alignItems:'center',cursor:'pointer',transition:'background .1s'}}
+            onMouseEnter={e=>(e.currentTarget.style.background='rgba(255,255,255,.022)')}
+            onMouseLeave={e=>(e.currentTarget.style.background='transparent')}>
+            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.18)'}}>{c.rank}</div>
+            <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
+              <div style={{width:'34px',height:'34px',borderRadius:'7px',background:colors[i],flexShrink:0,position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%, ${accents[i]}88, transparent 70%)`}} />
+              </div>
+              <div>
+                <div style={{fontSize:'13px',fontWeight:600,color:'#ededf0'}}>{c.name}</div>
+                <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',marginTop:'.1rem'}}>{c.type}</div>
+              </div>
             </div>
-            <div>
-              <div style={{fontSize:'13px',fontWeight:600,color:'#ededf0'}}>{c.name}</div>
-              <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',marginTop:'.1rem'}}>{c.type}</div>
+            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#ededf0',textAlign:'right'}}>{c.floor} <span style={{fontSize:'9px',color:'rgba(124,111,247,.5)'}}>RITUAL</span></div>
+            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.4)',textAlign:'right'}}>{c.offer}</div>
+            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',textAlign:'right',color:c.chg>0?'#4ade80':c.chg<0?'#f87171':'rgba(255,255,255,.3)'}}>
+              {c.chg===0?'—':(c.chg>0?'+':'')+c.chg.toFixed(1)+'%'}
             </div>
+            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#ededf0',textAlign:'right'}}>{c.vol.toFixed(1)}</div>
+            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.35)',textAlign:'right'}}>{c.listed||'—'}</div>
           </div>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#ededf0',textAlign:'right'}}>{c.floor} <span style={{fontSize:'9px',color:'rgba(124,111,247,.5)'}}>RITUAL</span></div>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.4)',textAlign:'right'}}>{c.offer}</div>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',textAlign:'right',color:c.chg>0?'#4ade80':c.chg<0?'#f87171':'rgba(255,255,255,.3)'}}>
-            {c.chg===0?'—':(c.chg>0?'+':'')+c.chg.toFixed(1)+'%'}
-          </div>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#ededf0',textAlign:'right'}}>{c.vol.toFixed(1)}</div>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.35)',textAlign:'right'}}>{c.listed||'—'}</div>
-        </div>
+        </Link>
       ))}
     </div>
   )
