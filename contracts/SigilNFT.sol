@@ -10,12 +10,14 @@ contract SigilNFT is ERC721, Ownable {
     uint256 public totalMinted;
     uint256 public maxPerWallet;
     bool public mintOpen;
+    bool public whitelistOnly;
     string public baseTokenURI;
 
     address public constant SIGIL_TREASURY = 0xb8922f9591B36f82a671EF38C54C60b1396F59C8;
-    uint256 public constant PROTOCOL_FEE_BPS = 10; // 0.10% in basis points (1 bps = 0.01%)
+    uint256 public constant PROTOCOL_FEE_BPS = 10;
 
     mapping(address => uint256) public mintedPerWallet;
+    mapping(address => bool) public whitelist;
 
     constructor(
         string memory _name,
@@ -30,6 +32,7 @@ contract SigilNFT is ERC721, Ownable {
         maxPerWallet = _maxPerWallet;
         baseTokenURI = _baseTokenURI;
         mintOpen = false;
+        whitelistOnly = false;
     }
 
     function mint(uint256 quantity) external payable {
@@ -37,6 +40,9 @@ contract SigilNFT is ERC721, Ownable {
         require(totalMinted + quantity <= maxSupply, "Exceeds max supply");
         require(msg.value >= mintPrice * quantity, "Insufficient payment");
         require(mintedPerWallet[msg.sender] + quantity <= maxPerWallet, "Exceeds max per wallet");
+        if (whitelistOnly) {
+            require(whitelist[msg.sender], "Not whitelisted");
+        }
 
         uint256 totalPayment = mintPrice * quantity;
         uint256 protocolFee = (totalPayment * PROTOCOL_FEE_BPS) / 10000;
@@ -56,6 +62,22 @@ contract SigilNFT is ERC721, Ownable {
 
     function setMintOpen(bool _open) external onlyOwner {
         mintOpen = _open;
+    }
+
+    function setWhitelistOnly(bool _whitelistOnly) external onlyOwner {
+        whitelistOnly = _whitelistOnly;
+    }
+
+    function addToWhitelist(address[] calldata addresses) external onlyOwner {
+        for (uint256 i = 0; i < addresses.length; i++) {
+            whitelist[addresses[i]] = true;
+        }
+    }
+
+    function removeFromWhitelist(address[] calldata addresses) external onlyOwner {
+        for (uint256 i = 0; i < addresses.length; i++) {
+            whitelist[addresses[i]] = false;
+        }
     }
 
     function withdraw() external onlyOwner {
