@@ -12,6 +12,9 @@ contract SigilNFT is ERC721, Ownable {
     bool public mintOpen;
     string public baseTokenURI;
 
+    address public constant SIGIL_TREASURY = 0xb8922f9591B36f82a671EF38C54C60b1396F59C8;
+    uint256 public constant PROTOCOL_FEE_BPS = 10; // 0.10% in basis points (1 bps = 0.01%)
+
     mapping(address => uint256) public mintedPerWallet;
 
     constructor(
@@ -34,6 +37,15 @@ contract SigilNFT is ERC721, Ownable {
         require(totalMinted + quantity <= maxSupply, "Exceeds max supply");
         require(msg.value >= mintPrice * quantity, "Insufficient payment");
         require(mintedPerWallet[msg.sender] + quantity <= maxPerWallet, "Exceeds max per wallet");
+
+        uint256 totalPayment = mintPrice * quantity;
+        uint256 protocolFee = (totalPayment * PROTOCOL_FEE_BPS) / 10000;
+        uint256 creatorPayment = totalPayment - protocolFee;
+
+        if (protocolFee > 0) {
+            payable(SIGIL_TREASURY).transfer(protocolFee);
+        }
+        payable(owner()).transfer(creatorPayment);
 
         for (uint256 i = 0; i < quantity; i++) {
             totalMinted++;
