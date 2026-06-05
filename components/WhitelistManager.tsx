@@ -1,145 +1,138 @@
 'use client'
-import { useAccount, useConnect, useWriteContract, useReadContract } from 'wagmi'
-import { injected } from 'wagmi/connectors'
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import WhitelistManager from './WhitelistManager'
-
-const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10']
-const accents = ['#5b21b6','#1e3a5f','#6d28d9','#374151','#78350f','#166534']
+import { useState } from 'react'
+import { useWriteContract, useReadContract } from 'wagmi'
 
 const ABI = [
-  { name:'setMintOpen', type:'function', stateMutability:'nonpayable', inputs:[{name:'_open',type:'bool'}], outputs:[] },
-  { name:'mintOpen', type:'function', stateMutability:'view', inputs:[], outputs:[{type:'bool'}] },
+  {
+    name: 'addToWhitelist',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'addresses', type: 'address[]' }],
+    outputs: [],
+  },
+  {
+    name: 'removeFromWhitelist',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'addresses', type: 'address[]' }],
+    outputs: [],
+  },
+  {
+    name: 'setWhitelistOnly',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: '_whitelistOnly', type: 'bool' }],
+    outputs: [],
+  },
+  {
+    name: 'whitelistOnly',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bool' }],
+  },
 ] as const
 
-function MintToggle({ contractAddress }: { contractAddress: string }) {
+export default function WhitelistManager({ contractAddress }: { contractAddress: string }) {
+  const [addresses, setAddresses] = useState('')
+  const [tab, setTab] = useState<'add'|'remove'>('add')
+  const [success, setSuccess] = useState('')
+
   const { writeContract, isPending } = useWriteContract()
-  const { data: mintOpen, refetch } = useReadContract({
+
+  const { data: whitelistOnly, refetch } = useReadContract({
     address: contractAddress as `0x${string}`,
     abi: ABI,
-    functionName: 'mintOpen',
-    query: { enabled: !!contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000' }
+    functionName: 'whitelistOnly',
+    query: { enabled: !!contractAddress },
   })
 
-  const toggle = async () => {
+  const parseAddresses = () => {
+    return addresses
+      .split(/[\n,]/)
+      .map(a => a.trim())
+      .filter(a => a.startsWith('0x') && a.length === 42) as `0x${string}`[]
+  }
+
+  const handleSubmit = () => {
+    const parsed = parseAddresses()
+    if (parsed.length === 0) return
     writeContract({
       address: contractAddress as `0x${string}`,
       abi: ABI,
-      functionName: 'setMintOpen',
-      args: [!mintOpen],
+      functionName: tab === 'add' ? 'addToWhitelist' : 'removeFromWhitelist',
+      args: [parsed],
+    }, {
+      onSuccess: () => {
+        setSuccess(`${parsed.length} address${parsed.length!==1?'es':''} ${tab==='add'?'added to':'removed from'} whitelist!`)
+        setAddresses('')
+        setTimeout(() => setSuccess(''), 3000)
+      }
+    })
+  }
+
+  const toggleWhitelistOnly = () => {
+    writeContract({
+      address: contractAddress as `0x${string}`,
+      abi: ABI,
+      functionName: 'setWhitelistOnly',
+      args: [!whitelistOnly],
     }, {
       onSuccess: () => setTimeout(() => refetch(), 2000)
     })
   }
 
-  if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-    return <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)'}}>no contract</div>
-  }
-
   return (
-    <button onClick={toggle} disabled={isPending} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:isPending?'rgba(255,255,255,.3)':mintOpen?'#f87171':'#4ade80',background:isPending?'rgba(255,255,255,.04)':mintOpen?'rgba(248,113,113,.1)':'rgba(74,222,128,.1)',border:`.5px solid ${isPending?'rgba(255,255,255,.08)':mintOpen?'rgba(248,113,113,.25)':'rgba(74,222,128,.25)'}`,padding:'.3rem .7rem',borderRadius:'6px',cursor:isPending?'not-allowed':'pointer',letterSpacing:'.04em',whiteSpace:'nowrap'}}>
-      {isPending?'waiting...':mintOpen?'pause mint':'open mint'}
-    </button>
-  )
-}
+    <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',padding:'1.25rem',marginTop:'1rem'}}>
+      <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.28)',letterSpacing:'.1em',marginBottom:'1rem'}}>// whitelist manager</div>
 
-export default function MyLaunches() {
-  const { address, isConnected } = useAccount()
-  const { connect } = useConnect()
-  const [launches, setLaunches] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
-  const [expanded, setExpanded] = useState<string|null>(null)
-
-  useEffect(() => { setMounted(true) }, [])
-
-  useEffect(() => {
-    if (!address) { setLoading(false); return }
-    const fetch = async () => {
-      const { data } = await supabase
-        .from('collections')
-        .select('*')
-        .eq('creator_address', address)
-        .order('created_at', { ascending: false })
-      setLaunches(data || [])
-      setLoading(false)
-    }
-    fetch()
-  }, [address])
-
-  if (!mounted) return null
-
-  return (
-    <div style={{maxWidth:'1100px',margin:'0 auto',padding:'2.5rem 1.75rem'}}>
-      <div style={{marginBottom:'2rem'}}>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.12em',marginBottom:'.75rem'}}>// my launches</div>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end'}}>
-          <h1 style={{fontSize:'28px',fontWeight:800,letterSpacing:'-.02em'}}>my collections</h1>
-          {isConnected && (
-            <div style={{display:'flex',gap:'.75rem',alignItems:'center'}}>
-              <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.3)'}}>{launches.length} collection{launches.length!==1?'s':''}</div>
-              <a href="/launch" style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#080809',background:'#7c6ff7',border:'none',padding:'.38rem .95rem',borderRadius:'5px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>+ new collection</a>
-            </div>
-          )}
+      <div onClick={toggleWhitelistOnly} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'.75rem 1rem',background:'rgba(124,111,247,.05)',border:`.5px solid ${whitelistOnly?'rgba(124,111,247,.3)':'rgba(255,255,255,.08)'}`,borderRadius:'8px',cursor:'pointer',marginBottom:'1rem'}}>
+        <div>
+          <div style={{fontSize:'13px',fontWeight:600,marginBottom:'.15rem'}}>whitelist only mode</div>
+          <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.3)'}}>only whitelisted wallets can mint</div>
+        </div>
+        <div style={{width:'36px',height:'20px',borderRadius:'10px',background:whitelistOnly?'#7c6ff7':'rgba(255,255,255,.1)',position:'relative',transition:'background .2s',flexShrink:0}}>
+          <div style={{width:'16px',height:'16px',borderRadius:'50%',background:'#ededf0',position:'absolute',top:'2px',left:whitelistOnly?'18px':'2px',transition:'left .2s'}} />
         </div>
       </div>
 
-      {!isConnected ? (
-        <div style={{textAlign:'center',padding:'5rem 2rem',border:'.5px dashed rgba(255,255,255,.1)',borderRadius:'12px'}}>
-          <div style={{fontSize:'32px',marginBottom:'1rem',opacity:.3}}>◈</div>
-          <div style={{fontSize:'16px',fontWeight:600,marginBottom:'.5rem'}}>connect your wallet</div>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.3)',marginBottom:'1.5rem'}}>to view your launched collections</div>
-          <button onClick={()=>connect({connector:injected()})} style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer'}}>connect wallet</button>
+      <div style={{display:'flex',gap:'.5rem',marginBottom:'1rem'}}>
+        {(['add','remove'] as const).map(t => (
+          <button key={t} onClick={()=>setTab(t)} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:tab===t?'#080809':'rgba(255,255,255,.35)',background:tab===t?'#7c6ff7':'rgba(255,255,255,.04)',border:`.5px solid ${tab===t?'#7c6ff7':'rgba(255,255,255,.1)'}`,padding:'.38rem .85rem',borderRadius:'5px',cursor:'pointer'}}>
+            {t} addresses
+          </button>
+        ))}
+      </div>
+
+      <div style={{marginBottom:'1rem'}}>
+        <label style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',letterSpacing:'.08em',display:'block',marginBottom:'.4rem'}}>
+          wallet addresses (one per line or comma separated)
+        </label>
+        <textarea
+          value={addresses}
+          onChange={e=>setAddresses(e.target.value)}
+          placeholder={'0x1234...5678\n0xabcd...ef01'}
+          rows={5}
+          style={{width:'100%',fontFamily:'DM Mono,monospace',fontSize:'11px',background:'#080809',border:`.5px solid ${addresses?'rgba(124,111,247,.4)':'rgba(255,255,255,.1)'}`,color:'#ededf0',padding:'.65rem .85rem',borderRadius:'7px',outline:'none',resize:'vertical'}}
+        />
+        <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',marginTop:'.35rem'}}>
+          {parseAddresses().length} valid address{parseAddresses().length!==1?'es':''} detected
         </div>
-      ) : loading ? (
-        <div style={{textAlign:'center',padding:'5rem 2rem',fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.25)'}}>loading...</div>
-      ) : launches.length === 0 ? (
-        <div style={{textAlign:'center',padding:'5rem 2rem',border:'.5px dashed rgba(255,255,255,.1)',borderRadius:'12px'}}>
-          <div style={{fontSize:'32px',marginBottom:'1rem',opacity:.3}}>◈</div>
-          <div style={{fontSize:'16px',fontWeight:600,marginBottom:'.5rem'}}>no collections yet</div>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.3)',marginBottom:'1.5rem'}}>launch your first nft collection on ritual testnet</div>
-          <a href="/launch" style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>launch collection</a>
-        </div>
-      ) : (
-        <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
-          {launches.map((l,i) => (
-            <div key={l.id} style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',overflow:'hidden'}}>
-              <div style={{display:'grid',gridTemplateColumns:'120px 1fr',alignItems:'stretch'}}>
-                <a href={`/collection/${l.tx_hash||l.id}`} style={{textDecoration:'none',color:'inherit'}}>
-                  <div style={{height:'100%',minHeight:'100px',background:colors[i%colors.length],position:'relative'}}>
-                    <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 35% 40%, ${accents[i%accents.length]}88, transparent 65%)`}} />
-                    <div style={{position:'absolute',bottom:'8px',left:'8px',fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.3)',background:'rgba(8,8,9,.6)',padding:'.15rem .4rem',borderRadius:'3px'}}>{l.symbol}</div>
-                  </div>
-                </a>
-                <div style={{padding:'.85rem 1rem'}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.5rem'}}>
-                    <div>
-                      <div style={{fontSize:'15px',fontWeight:600,marginBottom:'.15rem'}}>{l.name}</div>
-                      <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)'}}>{l.type} · {l.supply?.toLocaleString()} items · {l.price} RITUAL</div>
-                    </div>
-                    <div style={{display:'flex',gap:'.5rem',alignItems:'center'}}>
-                      {l.contract_address && <MintToggle contractAddress={l.contract_address} />}
-                      <button onClick={()=>setExpanded(expanded===l.id?null:l.id)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(124,111,247,.6)',background:'rgba(124,111,247,.06)',border:'.5px solid rgba(124,111,247,.2)',padding:'.3rem .7rem',borderRadius:'6px',cursor:'pointer',letterSpacing:'.04em'}}>
-                        {expanded===l.id?'hide whitelist':'manage whitelist'}
-                      </button>
-                    </div>
-                  </div>
-                  <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)'}}>
-                    deployed {new Date(l.created_at).toLocaleDateString('en-GB')}
-                    {l.contract_address && <span style={{marginLeft:'.75rem',color:'rgba(124,111,247,.5)'}}>{l.contract_address.slice(0,10)}...{l.contract_address.slice(-6)}</span>}
-                  </div>
-                </div>
-              </div>
-              {expanded===l.id && l.contract_address && (
-                <div style={{padding:'0 1rem 1rem'}}>
-                  <WhitelistManager contractAddress={l.contract_address} />
-                </div>
-              )}
-            </div>
-          ))}
+      </div>
+
+      {success && (
+        <div style={{background:'rgba(74,222,128,.08)',border:'.5px solid rgba(74,222,128,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80'}}>
+          ✓ {success}
         </div>
       )}
+
+      <button
+        onClick={handleSubmit}
+        disabled={isPending||parseAddresses().length===0}
+        style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'#080809',background:isPending||parseAddresses().length===0?'rgba(124,111,247,.4)':'#7c6ff7',border:'none',padding:'.6rem 1.25rem',borderRadius:'6px',cursor:isPending||parseAddresses().length===0?'not-allowed':'pointer',letterSpacing:'.04em'}}
+      >
+        {isPending?'confirming...':`${tab} ${parseAddresses().length} address${parseAddresses().length!==1?'es':''}`}
+      </button>
     </div>
   )
 }
