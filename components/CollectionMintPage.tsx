@@ -1,3 +1,4 @@
+cat > components/CollectionMintPage.tsx << 'ENDOFFILE'
 'use client'
 import { useAccount, useConnect, useWriteContract } from 'wagmi'
 import { injected } from 'wagmi/connectors'
@@ -39,7 +40,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
         const { data } = await supabase
           .from('collections')
           .select('*')
-          .or(`tx_hash.eq.${slug},id.eq.${slug}`)
+          .eq('tx_hash', slug)
           .single()
         setDbCollection(data)
         setLoading(false)
@@ -198,3 +199,4 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
     </div>
   )
 }
+ENDOFFILE
