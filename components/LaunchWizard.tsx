@@ -4,6 +4,7 @@ import { useAccount, useConnect, useDeployContract, usePublicClient } from 'wagm
 import { injected } from 'wagmi/connectors'
 import { parseEther } from 'viem'
 import { supabase } from '@/lib/supabase'
+import ArtworkUpload from './ArtworkUpload'
 
 const ABI = [
   {
@@ -26,6 +27,8 @@ export default function LaunchWizard() {
   const [deploying, setDeploying] = useState(false)
   const [deployed, setDeployed] = useState('')
   const [contractAddress, setContractAddress] = useState('')
+  const [artworkUrl, setArtworkUrl] = useState('')
+  const [artworkHash, setArtworkHash] = useState('')
   const [form, setForm] = useState({
     name: '', symbol: '', description: '', website: '', twitter: '', discord: '',
     supply: '', price: '', maxPerWallet: '', mintDate: '', whitelist: false, type: 'generative',
@@ -44,6 +47,7 @@ export default function LaunchWizard() {
     try {
       const res = await fetch('/api/bytecode')
       const { bytecode } = await res.json()
+      const baseURI = artworkHash ? `ipfs://${artworkHash}/` : 'ipfs://placeholder/'
       deployContract({
         abi: ABI,
         bytecode: bytecode as `0x${string}`,
@@ -53,14 +57,13 @@ export default function LaunchWizard() {
           parseEther(form.price || '0.05'),
           BigInt(form.supply || '100'),
           BigInt(form.maxPerWallet || '5'),
-          'ipfs://placeholder/',
+          baseURI,
         ],
       }, {
         onSuccess: async (hash) => {
           try {
             const receipt = await publicClient!.waitForTransactionReceipt({ hash })
             const contractAddr = receipt.contractAddress || ''
-
             await supabase.from('collections').insert({
               name: form.name,
               symbol: form.symbol,
@@ -73,9 +76,10 @@ export default function LaunchWizard() {
               type: form.type,
               tx_hash: hash,
               contract_address: contractAddr,
+              artwork_url: artworkUrl,
+              artwork_hash: artworkHash,
               status: 'live',
             })
-
             setContractAddress(contractAddr)
             setDeployed(hash)
           } catch (e) {
@@ -156,18 +160,12 @@ export default function LaunchWizard() {
 
       {step === 1 && (
         <div>
-          <div style={{ border: '.5px dashed rgba(124,111,247,.3)', borderRadius: '12px', padding: '3rem 2rem', textAlign: 'center', background: 'rgba(124,111,247,.03)', marginBottom: '1.5rem', cursor: 'pointer' }}>
-            <div style={{ fontSize: '32px', marginBottom: '1rem', opacity: .4 }}>↑</div>
-            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '.5rem' }}>upload your artwork</div>
-            <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: 'rgba(255,255,255,.3)', lineHeight: 1.8 }}>
-              drag & drop your files here<br />
-              supports: png, jpg, gif, mp4, glb<br />
-              max 100mb per file
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '.75rem' }}>
+          <ArtworkUpload onUpload={(url, hash) => { setArtworkUrl(url); setArtworkHash(hash) }} />
+          <div style={{ display: 'flex', gap: '.75rem', marginTop: '1rem' }}>
             <button onClick={() => setStep(0)} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: 'pointer' }}>← back</button>
-            <button onClick={() => setStep(2)} style={{ background: '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: 'pointer', letterSpacing: '.04em' }}>continue →</button>
+            <button onClick={() => setStep(2)} style={{ background: '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: 'pointer', letterSpacing: '.04em' }}>
+              {artworkUrl ? 'continue →' : 'skip for now →'}
+            </button>
           </div>
         </div>
       )}
@@ -224,11 +222,12 @@ export default function LaunchWizard() {
                   { label: 'mint price', val: form.price + ' RITUAL' },
                   { label: 'max per wallet', val: form.maxPerWallet || 'unlimited' },
                   { label: 'whitelist', val: form.whitelist ? 'enabled' : 'disabled' },
+                  { label: 'artwork', val: artworkUrl ? '✓ uploaded to ipfs' : '— no artwork (using placeholder)' },
                   { label: 'network', val: 'ritual testnet · chain id 1979' },
                 ].map(r => (
                   <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '.5rem 0', borderBottom: '.5px solid rgba(255,255,255,.04)' }}>
                     <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: 'rgba(255,255,255,.3)', letterSpacing: '.05em' }}>{r.label}</div>
-                    <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#ededf0' }}>{r.val}</div>
+                    <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: r.label==='artwork'&&artworkUrl?'#4ade80':'#ededf0' }}>{r.val}</div>
                   </div>
                 ))}
               </div>
@@ -246,9 +245,7 @@ export default function LaunchWizard() {
             <div style={{ textAlign: 'center', padding: '3rem 2rem' }}>
               <div style={{ fontSize: '48px', marginBottom: '1rem' }}>🔮</div>
               <div style={{ fontSize: '22px', fontWeight: 800, marginBottom: '.5rem' }}>collection deployed!</div>
-              <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.35)', marginBottom: '2rem', lineHeight: 1.9 }}>
-                your collection is now live on sigil.best
-              </div>
+              <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.35)', marginBottom: '2rem', lineHeight: 1.9 }}>your collection is now live on sigil.best</div>
               {contractAddress && (
                 <div style={{ background: '#0f0f14', border: '.5px solid rgba(74,222,128,.2)', borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1rem', textAlign: 'left' }}>
                   <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.25)', marginBottom: '.4rem' }}>contract address</div>
@@ -260,12 +257,8 @@ export default function LaunchWizard() {
                 <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#7c6ff7', wordBreak: 'break-all' }}>{deployed}</div>
               </div>
               <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center' }}>
-                <a href="/my-launches" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: '#080809', background: '#7c6ff7', border: 'none', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>
-                  view my launches ↗
-                </a>
-                <a href={`https://explorer.ritualfoundation.org/tx/${deployed}`} target="_blank" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.4)', background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>
-                  view on explorer ↗
-                </a>
+                <a href="/my-launches" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: '#080809', background: '#7c6ff7', border: 'none', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>view my launches ↗</a>
+                <a href={`https://explorer.ritualfoundation.org/tx/${deployed}`} target="_blank" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.4)', background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>view on explorer ↗</a>
               </div>
             </div>
           )}
