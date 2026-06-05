@@ -2,14 +2,14 @@
 import Link from 'next/link'
 
 const collections = [
-  {rank:1, name:'Ethereal Voids', type:'generative', floor:0.12, offer:0.10, chg:143.2, vol:38.4, listed:165},
-  {rank:2, name:'Runic Beasts', type:'pfp', floor:0.07, offer:0.06, chg:89.5, vol:24.1, listed:88},
-  {rank:3, name:'Quantum Masks', type:'art', floor:0.03, offer:0.025, chg:67.8, vol:18.6, listed:310},
-  {rank:4, name:'Obsidian Frames', type:'generative', floor:0.22, offer:0.20, chg:-8.4, vol:14.2, listed:42},
-  {rank:5, name:'Pale Signals', type:'art', floor:0.09, offer:0.08, chg:0, vol:9.7, listed:0},
-  {rank:6, name:'Null Portraits', type:'pfp', floor:0.15, offer:0.13, chg:-22.1, vol:7.3, listed:200},
-  {rank:7, name:'Circuit Glyphs', type:'generative', floor:0.04, offer:0.035, chg:31.0, vol:5.8, listed:490},
-  {rank:8, name:'Drift Echoes', type:'art', floor:0.06, offer:0.05, chg:-4.7, vol:3.2, listed:130},
+  {rank:1, name:'Ethereal Voids', type:'generative', floor:0.12, offer:0.10, chg:143.2, vol:38.4, listed:165, slug:'ethereal-voids'},
+  {rank:2, name:'Runic Beasts', type:'pfp', floor:0.07, offer:0.06, chg:89.5, vol:24.1, listed:88, slug:'runic-beasts'},
+  {rank:3, name:'Quantum Masks', type:'art', floor:0.03, offer:0.025, chg:67.8, vol:18.6, listed:310, slug:'quantum-masks'},
+  {rank:4, name:'Obsidian Frames', type:'generative', floor:0.22, offer:0.20, chg:-8.4, vol:14.2, listed:42, slug:'obsidian-frames'},
+  {rank:5, name:'Pale Signals', type:'art', floor:0.09, offer:0.08, chg:0, vol:9.7, listed:0, slug:'pale-signals'},
+  {rank:6, name:'Null Portraits', type:'pfp', floor:0.15, offer:0.13, chg:-22.1, vol:7.3, listed:200, slug:'null-portraits'},
+  {rank:7, name:'Circuit Glyphs', type:'generative', floor:0.04, offer:0.035, chg:31.0, vol:5.8, listed:490, slug:'circuit-glyphs'},
+  {rank:8, name:'Drift Echoes', type:'art', floor:0.06, offer:0.05, chg:-4.7, vol:3.2, listed:130, slug:'drift-echoes'},
 ]
 
 const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10','#0e0e14','#100a14']
@@ -49,7 +49,7 @@ export default function CollectionsTable() {
         ))}
       </div>
       {collections.map((c,i) => (
-        <Link key={i} href="/collection" style={{textDecoration:'none',color:'inherit',display:'block'}}>
+        <Link key={i} href={`/collection/${c.slug}`} style={{textDecoration:'none',color:'inherit',display:'block'}}>
           <div style={{display:'grid',gridTemplateColumns:'2.2rem 1fr 100px 100px 78px 96px 68px',padding:'.55rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.035)',alignItems:'center',cursor:'pointer'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.18)'}}>{c.rank}</div>
             <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
