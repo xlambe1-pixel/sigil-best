@@ -67,6 +67,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
     listed: 0,
     bg: '#0c0818',
     accent: '#5b21b6',
+    artworkUrl: dbCollection.artwork_url || '',
   } : null)
 
   const isRealContract = collection?.contract && collection.contract !== '0x0000000000000000000000000000000000000000'
@@ -105,6 +106,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   const total = (priceNum * qty).toFixed(4)
   const isLive = mintOpen === true
   const creatorAddress = (collection as any).creatorFull || ''
+  const artworkUrl = (collection as any).artworkUrl || ''
 
   const handleMint = () => {
     if (!isConnected) { connect({ connector: injected() }); return }
@@ -129,11 +131,19 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 360px',minHeight:'600px'}}>
         <div style={{padding:'2rem 1.75rem',borderRight:'.5px solid rgba(255,255,255,.06)'}}>
-          <div style={{background:collection.bg,borderRadius:'12px',overflow:'hidden',marginBottom:'1.5rem',position:'relative',height:'340px'}}>
-            <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 30% 40%, ${collection.accent}88, transparent 65%)`}} />
-            <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(8,8,9,.95) 0%, transparent 60%)'}} />
-            <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.08)',letterSpacing:'.2em'}}>{collection.symbol}</div>
+
+          <div style={{borderRadius:'12px',overflow:'hidden',marginBottom:'1.5rem',position:'relative',height:'340px',background:collection.bg}}>
+            {artworkUrl ? (
+              <img src={artworkUrl} alt={collection.name} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+            ) : (
+              <>
+                <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 30% 40%, ${collection.accent}88, transparent 65%)`}} />
+                <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(8,8,9,.95) 0%, transparent 60%)'}} />
+                <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.08)',letterSpacing:'.2em'}}>{collection.symbol}</div>
+              </>
+            )}
           </div>
+
           <div style={{marginBottom:'1.5rem'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',letterSpacing:'.08em',marginBottom:'.4rem'}}>✓ verified collection · ritual testnet</div>
             <div style={{fontSize:'26px',fontWeight:800,letterSpacing:'-.02em',marginBottom:'.35rem'}}>{collection.name}</div>
@@ -144,6 +154,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
               </a>
             </div>
           </div>
+
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'8px',marginBottom:'1.5rem'}}>
             {[
               {label:'supply', val:supply.toLocaleString(), sub:'total items'},
@@ -158,15 +169,18 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
               </div>
             ))}
           </div>
+
           <div style={{marginBottom:'1.5rem'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.1em',marginBottom:'.6rem'}}>// about</div>
             <div style={{fontSize:'13px',color:'rgba(255,255,255,.45)',lineHeight:1.9,fontWeight:300}}>{collection.description || 'no description provided.'}</div>
           </div>
+
           <div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.1em',marginBottom:'.6rem'}}>// contract</div>
             <a href={`https://explorer.ritualfoundation.org/address/${collection.contract}`} target="_blank" style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#7c6ff7',textDecoration:'none',wordBreak:'break-all'}}>{collection.contract} ↗</a>
           </div>
         </div>
+
         <div style={{padding:'2rem 1.5rem'}}>
           <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.1)',borderRadius:'12px',padding:'1.25rem',marginBottom:'1rem'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.1rem'}}>
