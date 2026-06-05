@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 const staticCollections = [
-  {rank:1, name:'Ethereal Voids', type:'generative', floor:0.12, offer:0.10, chg:143.2, vol:38.4, listed:165, slug:'ethereal-voids'},
-  {rank:2, name:'Runic Beasts', type:'pfp', floor:0.07, offer:0.06, chg:89.5, vol:24.1, listed:88, slug:'runic-beasts'},
-  {rank:3, name:'Quantum Masks', type:'art', floor:0.03, offer:0.025, chg:67.8, vol:18.6, listed:310, slug:'quantum-masks'},
-  {rank:4, name:'Obsidian Frames', type:'generative', floor:0.22, offer:0.20, chg:-8.4, vol:14.2, listed:42, slug:'obsidian-frames'},
-  {rank:5, name:'Pale Signals', type:'art', floor:0.09, offer:0.08, chg:0, vol:9.7, listed:0, slug:'pale-signals'},
-  {rank:6, name:'Null Portraits', type:'pfp', floor:0.15, offer:0.13, chg:-22.1, vol:7.3, listed:200, slug:'null-portraits'},
-  {rank:7, name:'Circuit Glyphs', type:'generative', floor:0.04, offer:0.035, chg:31.0, vol:5.8, listed:490, slug:'circuit-glyphs'},
-  {rank:8, name:'Drift Echoes', type:'art', floor:0.06, offer:0.05, chg:-4.7, vol:3.2, listed:130, slug:'drift-echoes'},
+  {rank:1, name:'Ethereal Voids', type:'generative', floor:0.12, offer:0.10, chg:143.2, vol:38.4, listed:165, slug:'ethereal-voids', artworkUrl:''},
+  {rank:2, name:'Runic Beasts', type:'pfp', floor:0.07, offer:0.06, chg:89.5, vol:24.1, listed:88, slug:'runic-beasts', artworkUrl:''},
+  {rank:3, name:'Quantum Masks', type:'art', floor:0.03, offer:0.025, chg:67.8, vol:18.6, listed:310, slug:'quantum-masks', artworkUrl:''},
+  {rank:4, name:'Obsidian Frames', type:'generative', floor:0.22, offer:0.20, chg:-8.4, vol:14.2, listed:42, slug:'obsidian-frames', artworkUrl:''},
+  {rank:5, name:'Pale Signals', type:'art', floor:0.09, offer:0.08, chg:0, vol:9.7, listed:0, slug:'pale-signals', artworkUrl:''},
+  {rank:6, name:'Null Portraits', type:'pfp', floor:0.15, offer:0.13, chg:-22.1, vol:7.3, listed:200, slug:'null-portraits', artworkUrl:''},
+  {rank:7, name:'Circuit Glyphs', type:'generative', floor:0.04, offer:0.035, chg:31.0, vol:5.8, listed:490, slug:'circuit-glyphs', artworkUrl:''},
+  {rank:8, name:'Drift Echoes', type:'art', floor:0.06, offer:0.05, chg:-4.7, vol:3.2, listed:130, slug:'drift-echoes', artworkUrl:''},
 ]
 
 const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10','#0e0e14','#100a14','#0c1018','#100810']
@@ -49,6 +49,7 @@ export default function CollectionsTable() {
     vol: 0,
     listed: 0,
     slug: c.tx_hash || c.id,
+    artworkUrl: c.artwork_url || '',
     isNew: true,
   }))
 
@@ -112,7 +113,11 @@ export default function CollectionsTable() {
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.18)'}}>{c.rank}</div>
             <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
               <div style={{width:'34px',height:'34px',borderRadius:'7px',background:colors[i%colors.length],flexShrink:0,position:'relative',overflow:'hidden'}}>
-                <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%, ${accents[i%accents.length]}88, transparent 70%)`}} />
+                {c.artworkUrl ? (
+                  <img src={c.artworkUrl} alt={c.name} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                ) : (
+                  <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%, ${accents[i%accents.length]}88, transparent 70%)`}} />
+                )}
                 {(c as any).isNew && (
                   <div style={{position:'absolute',top:2,right:2,width:'6px',height:'6px',borderRadius:'50%',background:'#4ade80'}} />
                 )}
