@@ -26,3 +26,18 @@ body {
   .table-row .hide-mobile { display: none !important; }
   .collection-grid { grid-template-columns: 1fr !important; }
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.skeleton {
+  background: rgba(255,255,255,.05);
+  border-radius: 6px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
