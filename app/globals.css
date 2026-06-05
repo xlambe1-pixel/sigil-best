@@ -9,3 +9,20 @@ body {
 }
 
 .mono { font-family: 'DM Mono', monospace; }
+
+.nav-links { display: flex; gap: .15rem; }
+.nav-chain { display: flex; }
+.mobile-menu-btn { display: none !important; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none !important; }
+  .nav-chain { display: none !important; }
+  .mobile-menu-btn { display: block !important; }
+  .hero-grid { grid-template-columns: 1fr !important; height: auto !important; }
+  .hero-grid > a > div { height: 140px !important; }
+  .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+  .movers-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .table-row { grid-template-columns: 2rem 1fr 80px 60px !important; }
+  .table-row .hide-mobile { display: none !important; }
+  .collection-grid { grid-template-columns: 1fr !important; }
+}
