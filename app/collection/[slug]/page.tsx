@@ -6,7 +6,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
   return (
     <main style={{minHeight:'100vh',background:'#080809',color:'#ededf0'}}>
       <Navbar />
-      <CollectionMintPage slug={slug} />
+      <CollectionMintPage slug={decodeURIComponent(slug)} />
     </main>
   )
 }
