@@ -25,7 +25,7 @@ export default function Navbar() {
             </div>
           </Link>
           <div className="nav-links">
-            {[['explore','/'],['launchpad','/launch'],['trade','#'],['my nfts','/my-nfts'],['my launches','/my-launches'],['stats','/stats']].map(([item,href]) => (
+            {[['explore','/'],['launchpad','/launch'],['trade','/trade'],['my nfts','/my-nfts'],['my launches','/my-launches'],['stats','/stats']].map(([item,href]) => (
               <Link key={item} href={href} style={{textDecoration:'none'}}>
                 <button style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.35)',background:'transparent',border:'none',padding:'.38rem .85rem',borderRadius:'5px',cursor:'pointer',letterSpacing:'.03em'}}>
                   {item}
@@ -58,7 +58,7 @@ export default function Navbar() {
       </div>
       {menuOpen && (
         <div style={{padding:'.75rem 1.25rem 1rem',borderTop:'.5px solid rgba(255,255,255,.06)',display:'flex',flexDirection:'column',gap:'.25rem'}}>
-          {[['explore','/'],['launchpad','/launch'],['trade','#'],['my nfts','/my-nfts'],['my launches','/my-launches'],['stats','/stats']].map(([item,href]) => (
+          {[['explore','/'],['launchpad','/launch'],['trade','/trade'],['my nfts','/my-nfts'],['my launches','/my-launches'],['stats','/stats']].map(([item,href]) => (
             <Link key={item} href={href} style={{textDecoration:'none'}} onClick={()=>setMenuOpen(false)}>
               <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.5)',padding:'.5rem .75rem',borderRadius:'5px',cursor:'pointer',letterSpacing:'.03em'}}>
                 {item}
