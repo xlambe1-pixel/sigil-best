@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useAccount, useConnect, useDeployContract } from 'wagmi'
+import { useAccount, useConnect, useDeployContract, usePublicClient } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { parseEther } from 'viem'
 import { supabase } from '@/lib/supabase'
@@ -25,6 +25,7 @@ export default function LaunchWizard() {
   const [step, setStep] = useState(0)
   const [deploying, setDeploying] = useState(false)
   const [deployed, setDeployed] = useState('')
+  const [contractAddress, setContractAddress] = useState('')
   const [form, setForm] = useState({
     name: '', symbol: '', description: '', website: '', twitter: '', discord: '',
     supply: '', price: '', maxPerWallet: '', mintDate: '', whitelist: false, type: 'generative',
@@ -33,6 +34,7 @@ export default function LaunchWizard() {
   const { address, isConnected } = useAccount()
   const { connect } = useConnect()
   const { deployContract } = useDeployContract()
+  const publicClient = usePublicClient()
 
   const update = (k: string, v: string | boolean) => setForm(f => ({ ...f, [k]: v }))
 
@@ -55,21 +57,32 @@ export default function LaunchWizard() {
         ],
       }, {
         onSuccess: async (hash) => {
-          await supabase.from('collections').insert({
-            name: form.name,
-            symbol: form.symbol,
-            description: form.description,
-            creator_address: address,
-            supply: parseInt(form.supply),
-            price: form.price,
-            max_per_wallet: parseInt(form.maxPerWallet) || 5,
-            whitelist: form.whitelist,
-            type: form.type,
-            tx_hash: hash,
-            status: 'live',
-          })
-          setDeployed(hash)
-          setDeploying(false)
+          try {
+            const receipt = await publicClient!.waitForTransactionReceipt({ hash })
+            const contractAddr = receipt.contractAddress || ''
+
+            await supabase.from('collections').insert({
+              name: form.name,
+              symbol: form.symbol,
+              description: form.description,
+              creator_address: address,
+              supply: parseInt(form.supply),
+              price: form.price,
+              max_per_wallet: parseInt(form.maxPerWallet) || 5,
+              whitelist: form.whitelist,
+              type: form.type,
+              tx_hash: hash,
+              contract_address: contractAddr,
+              status: 'live',
+            })
+
+            setContractAddress(contractAddr)
+            setDeployed(hash)
+          } catch (e) {
+            console.error(e)
+          } finally {
+            setDeploying(false)
+          }
         },
         onError: (e) => {
           console.error(e)
@@ -120,7 +133,7 @@ export default function LaunchWizard() {
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)', letterSpacing: '.08em', display: 'block', marginBottom: '.4rem' }}>type</label>
             <div style={{ display: 'flex', gap: '.5rem' }}>
-              {['generative','pfp','art'].map(t => (
+              {['generative', 'pfp', 'art'].map(t => (
                 <button key={t} onClick={() => update('type', t)} style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: form.type === t ? '#080809' : 'rgba(255,255,255,.35)', background: form.type === t ? '#7c6ff7' : 'rgba(255,255,255,.04)', border: `.5px solid ${form.type === t ? '#7c6ff7' : 'rgba(255,255,255,.1)'}`, padding: '.4rem .9rem', borderRadius: '5px', cursor: 'pointer' }}>
                   {t}
                 </button>
@@ -220,10 +233,10 @@ export default function LaunchWizard() {
                 ))}
               </div>
               <div style={{ background: 'rgba(124,111,247,.06)', border: '.5px solid rgba(124,111,247,.2)', borderRadius: '8px', padding: '.85rem 1rem', marginBottom: '1.5rem', fontFamily: 'DM Mono,monospace', fontSize: '11px', color: 'rgba(124,111,247,.8)', lineHeight: 1.8 }}>
-                deploying will create a smart contract on ritual testnet. make sure your wallet is connected and has enough RITUAL for gas (~0.01 RITUAL).
+                {deploying ? '⏳ waiting for transaction confirmation...' : 'deploying will create a smart contract on ritual testnet. make sure your wallet is connected and has enough RITUAL for gas (~0.01 RITUAL).'}
               </div>
               <div style={{ display: 'flex', gap: '.75rem' }}>
-                <button onClick={() => setStep(2)} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: 'pointer' }}>← back</button>
+                <button onClick={() => setStep(2)} disabled={deploying} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: deploying ? 'not-allowed' : 'pointer' }}>← back</button>
                 <button onClick={handleDeploy} disabled={deploying} style={{ background: deploying ? 'rgba(124,111,247,.5)' : '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 2rem', borderRadius: '7px', cursor: deploying ? 'not-allowed' : 'pointer', letterSpacing: '.04em' }}>
                   {deploying ? 'deploying...' : '🔮 deploy collection'}
                 </button>
@@ -236,13 +249,19 @@ export default function LaunchWizard() {
               <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.35)', marginBottom: '2rem', lineHeight: 1.9 }}>
                 your collection is now live on sigil.best
               </div>
+              {contractAddress && (
+                <div style={{ background: '#0f0f14', border: '.5px solid rgba(74,222,128,.2)', borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1rem', textAlign: 'left' }}>
+                  <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.25)', marginBottom: '.4rem' }}>contract address</div>
+                  <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#4ade80', wordBreak: 'break-all' }}>{contractAddress}</div>
+                </div>
+              )}
               <div style={{ background: '#0f0f14', border: '.5px solid rgba(124,111,247,.2)', borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1.5rem', textAlign: 'left' }}>
                 <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.25)', marginBottom: '.4rem' }}>transaction hash</div>
                 <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#7c6ff7', wordBreak: 'break-all' }}>{deployed}</div>
               </div>
               <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center' }}>
-                <a href="/" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: '#080809', background: '#7c6ff7', border: 'none', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>
-                  view on sigil ↗
+                <a href="/my-launches" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: '#080809', background: '#7c6ff7', border: 'none', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>
+                  view my launches ↗
                 </a>
                 <a href={`https://explorer.ritualfoundation.org/tx/${deployed}`} target="_blank" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.4)', background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>
                   view on explorer ↗
