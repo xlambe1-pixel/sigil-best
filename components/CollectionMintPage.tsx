@@ -1,4 +1,3 @@
-cat > components/CollectionMintPage.tsx << 'ENDOFFILE'
 'use client'
 import { useAccount, useConnect, useWriteContract } from 'wagmi'
 import { injected } from 'wagmi/connectors'
@@ -199,4 +198,3 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
     </div>
   )
 }
-ENDOFFILE
