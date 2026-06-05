@@ -19,7 +19,7 @@ export default function Navbar() {
           </div>
         </Link>
         <div style={{display:'flex',gap:'.15rem'}}>
-          {[['explore','/'],['launchpad','/launch'],['trade','#'],['my nfts','#'],['stats','#']].map(([item,href]) => (
+          {[['explore','/'],['launchpad','/launch'],['trade','#'],['my nfts','/my-nfts'],['stats','#']].map(([item,href]) => (
             <Link key={item} href={href} style={{textDecoration:'none'}}>
               <button style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.35)',background:'transparent',border:'none',padding:'.38rem .85rem',borderRadius:'5px',cursor:'pointer',letterSpacing:'.03em'}}>
                 {item}
