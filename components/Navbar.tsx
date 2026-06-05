@@ -1,15 +1,21 @@
+import Link from 'next/link'
+
 export default function Navbar() {
   return (
     <nav style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.85rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.07)',background:'#080809'}}>
       <div style={{display:'flex',alignItems:'center',gap:'2rem'}}>
-        <div style={{fontSize:'18px',fontWeight:800,letterSpacing:'-.02em'}}>
-          Sigil<span style={{color:'#7c6ff7'}}>.</span>
-        </div>
+        <Link href="/" style={{textDecoration:'none'}}>
+          <div style={{fontSize:'18px',fontWeight:800,letterSpacing:'-.02em',color:'#ededf0'}}>
+            Sigil<span style={{color:'#7c6ff7'}}>.</span>
+          </div>
+        </Link>
         <div style={{display:'flex',gap:'.15rem'}}>
-          {['explore','launchpad','trade','my nfts','stats'].map(item => (
-            <button key={item} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.35)',background:'transparent',border:'none',padding:'.38rem .85rem',borderRadius:'5px',cursor:'pointer',letterSpacing:'.03em'}}>
-              {item}
-            </button>
+          {[['explore','/'],['launchpad','/launch'],['trade','#'],['my nfts','#'],['stats','#']].map(([item,href]) => (
+            <Link key={item} href={href} style={{textDecoration:'none'}}>
+              <button style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.35)',background:'transparent',border:'none',padding:'.38rem .85rem',borderRadius:'5px',cursor:'pointer',letterSpacing:'.03em'}}>
+                {item}
+              </button>
+            </Link>
           ))}
         </div>
       </div>
