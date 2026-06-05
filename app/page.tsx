@@ -1,8 +1,9 @@
 import Navbar from '@/components/Navbar'
 import Hero from '@/components/Hero'
 import StatsBar from '@/components/StatsBar'
-import CollectionsTable from '@/components/CollectionsTable'
 import BiggestMovers from '@/components/BiggestMovers'
+import CollectionsTable from '@/components/CollectionsTable'
+import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <StatsBar />
       <BiggestMovers />
       <CollectionsTable />
+      <Footer />
     </main>
   )
 }
