@@ -1,8 +1,9 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
-const allCollections = [
+const staticCollections = [
   {rank:1, name:'Ethereal Voids', type:'generative', floor:0.12, offer:0.10, chg:143.2, vol:38.4, listed:165, slug:'ethereal-voids'},
   {rank:2, name:'Runic Beasts', type:'pfp', floor:0.07, offer:0.06, chg:89.5, vol:24.1, listed:88, slug:'runic-beasts'},
   {rank:3, name:'Quantum Masks', type:'art', floor:0.03, offer:0.025, chg:67.8, vol:18.6, listed:310, slug:'quantum-masks'},
@@ -13,8 +14,8 @@ const allCollections = [
   {rank:8, name:'Drift Echoes', type:'art', floor:0.06, offer:0.05, chg:-4.7, vol:3.2, listed:130, slug:'drift-echoes'},
 ]
 
-const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10','#0e0e14','#100a14']
-const accents = ['#5b21b6','#1e3a5f','#6d28d9','#374151','#78350f','#166534','#1e1b4b','#6b21a8']
+const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10','#0e0e14','#100a14','#0c1018','#100810']
+const accents = ['#5b21b6','#1e3a5f','#6d28d9','#374151','#78350f','#166534','#1e1b4b','#6b21a8','#1e3a5f','#5b21b6']
 
 const timeframes = ['10m','1h','6h','1d','7d','30d']
 const categories = ['all','live','art','pfp','generative']
@@ -25,6 +26,33 @@ export default function CollectionsTable() {
   const [activeTime, setActiveTime] = useState('10m')
   const [activeCategory, setActiveCategory] = useState('all')
   const [activeTab, setActiveTab] = useState('top collections')
+  const [dbCollections, setDbCollections] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const { data } = await supabase
+        .from('collections')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (data) setDbCollections(data)
+    }
+    fetchCollections()
+  }, [])
+
+  const dbFormatted = dbCollections.map((c, i) => ({
+    rank: staticCollections.length + i + 1,
+    name: c.name,
+    type: c.type || 'generative',
+    floor: parseFloat(c.price) || 0,
+    offer: (parseFloat(c.price) * 0.9) || 0,
+    chg: 0,
+    vol: 0,
+    listed: 0,
+    slug: c.tx_hash || c.id,
+    isNew: true,
+  }))
+
+  const allCollections = [...staticCollections, ...dbFormatted]
 
   const filtered = allCollections.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase())
@@ -79,20 +107,26 @@ export default function CollectionsTable() {
       )}
 
       {filtered.map((c,i) => (
-        <Link key={c.slug} href={`/collection/${c.slug}`} style={{textDecoration:'none',color:'inherit',display:'block'}}>
+        <Link key={i} href={`/collection/${c.slug}`} style={{textDecoration:'none',color:'inherit',display:'block'}}>
           <div style={{display:'grid',gridTemplateColumns:'2.2rem 1fr 100px 100px 78px 96px 68px',padding:'.55rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.035)',alignItems:'center',cursor:'pointer'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.18)'}}>{c.rank}</div>
             <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
-              <div style={{width:'34px',height:'34px',borderRadius:'7px',background:colors[allCollections.indexOf(c)],flexShrink:0,position:'relative',overflow:'hidden'}}>
-                <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%, ${accents[allCollections.indexOf(c)]}88, transparent 70%)`}} />
+              <div style={{width:'34px',height:'34px',borderRadius:'7px',background:colors[i%colors.length],flexShrink:0,position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%, ${accents[i%accents.length]}88, transparent 70%)`}} />
+                {(c as any).isNew && (
+                  <div style={{position:'absolute',top:2,right:2,width:'6px',height:'6px',borderRadius:'50%',background:'#4ade80'}} />
+                )}
               </div>
               <div>
-                <div style={{fontSize:'13px',fontWeight:600,color:'#ededf0'}}>{c.name}</div>
+                <div style={{fontSize:'13px',fontWeight:600,color:'#ededf0',display:'flex',alignItems:'center',gap:'.4rem'}}>
+                  {c.name}
+                  {(c as any).isNew && <span style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'#4ade80',background:'rgba(74,222,128,.1)',border:'.5px solid rgba(74,222,128,.2)',padding:'.1rem .4rem',borderRadius:'4px'}}>new</span>}
+                </div>
                 <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',marginTop:'.1rem'}}>{c.type}</div>
               </div>
             </div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#ededf0',textAlign:'right'}}>{c.floor} <span style={{fontSize:'9px',color:'rgba(124,111,247,.5)'}}>RITUAL</span></div>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.4)',textAlign:'right'}}>{c.offer}</div>
+            <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.4)',textAlign:'right'}}>{c.offer.toFixed(3)}</div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',textAlign:'right',color:c.chg>0?'#4ade80':c.chg<0?'#f87171':'rgba(255,255,255,.3)'}}>
               {c.chg===0?'—':(c.chg>0?'+':'')+c.chg.toFixed(1)+'%'}
             </div>
