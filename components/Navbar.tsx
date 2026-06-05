@@ -1,6 +1,15 @@
+'use client'
 import Link from 'next/link'
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { injected } from 'wagmi/connectors'
 
 export default function Navbar() {
+  const { address, isConnected } = useAccount()
+  const { connect } = useConnect()
+  const { disconnect } = useDisconnect()
+
+  const short = (addr: string) => addr.slice(0,6)+'...'+addr.slice(-4)
+
   return (
     <nav style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.85rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.07)',background:'#080809'}}>
       <div style={{display:'flex',alignItems:'center',gap:'2rem'}}>
@@ -27,9 +36,15 @@ export default function Navbar() {
           <span style={{width:'5px',height:'5px',borderRadius:'50%',background:'#7c6ff7',display:'inline-block'}} />
           ritual · 1979
         </div>
-        <button style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#080809',background:'#7c6ff7',border:'none',padding:'.38rem .95rem',borderRadius:'5px',cursor:'pointer',fontWeight:500}}>
-          connect wallet
-        </button>
+        {isConnected ? (
+          <button onClick={()=>disconnect()} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80',background:'rgba(74,222,128,.08)',border:'.5px solid rgba(74,222,128,.2)',padding:'.38rem .95rem',borderRadius:'5px',cursor:'pointer'}}>
+            {short(address!)}
+          </button>
+        ) : (
+          <button onClick={()=>connect({connector:injected()})} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#080809',background:'#7c6ff7',border:'none',padding:'.38rem .95rem',borderRadius:'5px',cursor:'pointer',fontWeight:500}}>
+            connect wallet
+          </button>
+        )}
       </div>
     </nav>
   )
