@@ -3,25 +3,14 @@ import { useAccount, useConnect, useWriteContract, useReadContract } from 'wagmi
 import { injected } from 'wagmi/connectors'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import WhitelistManager from './WhitelistManager'
 
 const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10']
 const accents = ['#5b21b6','#1e3a5f','#6d28d9','#374151','#78350f','#166534']
 
 const ABI = [
-  {
-    name: 'setMintOpen',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ name: '_open', type: 'bool' }],
-    outputs: [],
-  },
-  {
-    name: 'mintOpen',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'bool' }],
-  },
+  { name:'setMintOpen', type:'function', stateMutability:'nonpayable', inputs:[{name:'_open',type:'bool'}], outputs:[] },
+  { name:'mintOpen', type:'function', stateMutability:'view', inputs:[], outputs:[{type:'bool'}] },
 ] as const
 
 function MintToggle({ contractAddress }: { contractAddress: string }) {
@@ -49,19 +38,8 @@ function MintToggle({ contractAddress }: { contractAddress: string }) {
   }
 
   return (
-    <button onClick={toggle} disabled={isPending} style={{
-      fontFamily:'DM Mono,monospace',
-      fontSize:'10px',
-      color: isPending ? 'rgba(255,255,255,.3)' : mintOpen ? '#f87171' : '#4ade80',
-      background: isPending ? 'rgba(255,255,255,.04)' : mintOpen ? 'rgba(248,113,113,.1)' : 'rgba(74,222,128,.1)',
-      border: `.5px solid ${isPending ? 'rgba(255,255,255,.08)' : mintOpen ? 'rgba(248,113,113,.25)' : 'rgba(74,222,128,.25)'}`,
-      padding:'.3rem .7rem',
-      borderRadius:'6px',
-      cursor: isPending ? 'not-allowed' : 'pointer',
-      letterSpacing:'.04em',
-      whiteSpace:'nowrap',
-    }}>
-      {isPending ? 'waiting...' : mintOpen ? 'pause mint' : 'open mint'}
+    <button onClick={toggle} disabled={isPending} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:isPending?'rgba(255,255,255,.3)':mintOpen?'#f87171':'#4ade80',background:isPending?'rgba(255,255,255,.04)':mintOpen?'rgba(248,113,113,.1)':'rgba(74,222,128,.1)',border:`.5px solid ${isPending?'rgba(255,255,255,.08)':mintOpen?'rgba(248,113,113,.25)':'rgba(74,222,128,.25)'}`,padding:'.3rem .7rem',borderRadius:'6px',cursor:isPending?'not-allowed':'pointer',letterSpacing:'.04em',whiteSpace:'nowrap'}}>
+      {isPending?'waiting...':mintOpen?'pause mint':'open mint'}
     </button>
   )
 }
@@ -72,6 +50,7 @@ export default function MyLaunches() {
   const [launches, setLaunches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const [expanded, setExpanded] = useState<string|null>(null)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -99,12 +78,8 @@ export default function MyLaunches() {
           <h1 style={{fontSize:'28px',fontWeight:800,letterSpacing:'-.02em'}}>my collections</h1>
           {isConnected && (
             <div style={{display:'flex',gap:'.75rem',alignItems:'center'}}>
-              <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.3)'}}>
-                {launches.length} collection{launches.length!==1?'s':''}
-              </div>
-              <a href="/launch" style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#080809',background:'#7c6ff7',border:'none',padding:'.38rem .95rem',borderRadius:'5px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>
-                + new collection
-              </a>
+              <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.3)'}}>{launches.length} collection{launches.length!==1?'s':''}</div>
+              <a href="/launch" style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#080809',background:'#7c6ff7',border:'none',padding:'.38rem .95rem',borderRadius:'5px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>+ new collection</a>
             </div>
           )}
         </div>
@@ -115,60 +90,52 @@ export default function MyLaunches() {
           <div style={{fontSize:'32px',marginBottom:'1rem',opacity:.3}}>◈</div>
           <div style={{fontSize:'16px',fontWeight:600,marginBottom:'.5rem'}}>connect your wallet</div>
           <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.3)',marginBottom:'1.5rem'}}>to view your launched collections</div>
-          <button onClick={()=>connect({connector:injected()})} style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer'}}>
-            connect wallet
-          </button>
+          <button onClick={()=>connect({connector:injected()})} style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer'}}>connect wallet</button>
         </div>
       ) : loading ? (
-        <div style={{textAlign:'center',padding:'5rem 2rem',fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.25)'}}>
-          loading...
-        </div>
+        <div style={{textAlign:'center',padding:'5rem 2rem',fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.25)'}}>loading...</div>
       ) : launches.length === 0 ? (
         <div style={{textAlign:'center',padding:'5rem 2rem',border:'.5px dashed rgba(255,255,255,.1)',borderRadius:'12px'}}>
           <div style={{fontSize:'32px',marginBottom:'1rem',opacity:.3}}>◈</div>
           <div style={{fontSize:'16px',fontWeight:600,marginBottom:'.5rem'}}>no collections yet</div>
           <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.3)',marginBottom:'1.5rem'}}>launch your first nft collection on ritual testnet</div>
-          <a href="/launch" style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>
-            launch collection
-          </a>
+          <a href="/launch" style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>launch collection</a>
         </div>
       ) : (
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:'12px'}}>
+        <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
           {launches.map((l,i) => (
             <div key={l.id} style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',overflow:'hidden'}}>
-              <a href={`/collection/${l.tx_hash||l.id}`} style={{textDecoration:'none',color:'inherit',display:'block'}}>
-                <div style={{height:'140px',background:colors[i%colors.length],position:'relative'}}>
-                  <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 35% 40%, ${accents[i%accents.length]}88, transparent 65%)`}} />
-                  <div style={{position:'absolute',bottom:'10px',left:'10px',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.3)',background:'rgba(8,8,9,.6)',padding:'.2rem .5rem',borderRadius:'4px'}}>
-                    {l.symbol}
+              <div style={{display:'grid',gridTemplateColumns:'120px 1fr',alignItems:'stretch'}}>
+                <a href={`/collection/${l.tx_hash||l.id}`} style={{textDecoration:'none',color:'inherit'}}>
+                  <div style={{height:'100%',minHeight:'100px',background:colors[i%colors.length],position:'relative'}}>
+                    <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 35% 40%, ${accents[i%accents.length]}88, transparent 65%)`}} />
+                    <div style={{position:'absolute',bottom:'8px',left:'8px',fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.3)',background:'rgba(8,8,9,.6)',padding:'.15rem .4rem',borderRadius:'3px'}}>{l.symbol}</div>
                   </div>
-                </div>
-              </a>
-              <div style={{padding:'.85rem 1rem'}}>
-                <div style={{fontSize:'14px',fontWeight:600,marginBottom:'.25rem'}}>{l.name}</div>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',marginBottom:'.75rem',lineHeight:1.6}}>
-                  {l.description?.slice(0,60)}{l.description?.length>60?'...':''}
-                </div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px',marginBottom:'.75rem'}}>
-                  {[
-                    {label:'supply', val:l.supply?.toLocaleString()||'—'},
-                    {label:'price', val:(l.price||'—')+' RITUAL'},
-                  ].map(s => (
-                    <div key={s.label} style={{background:'#080809',borderRadius:'5px',padding:'.4rem .5rem'}}>
-                      <div style={{fontFamily:'DM Mono,monospace',fontSize:'8px',color:'rgba(255,255,255,.2)',letterSpacing:'.06em',marginBottom:'.15rem'}}>{s.label}</div>
-                      <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.6)'}}>{s.val}</div>
+                </a>
+                <div style={{padding:'.85rem 1rem'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.5rem'}}>
+                    <div>
+                      <div style={{fontSize:'15px',fontWeight:600,marginBottom:'.15rem'}}>{l.name}</div>
+                      <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)'}}>{l.type} · {l.supply?.toLocaleString()} items · {l.price} RITUAL</div>
                     </div>
-                  ))}
-                </div>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingTop:'.65rem',borderTop:'.5px solid rgba(255,255,255,.05)'}}>
-                  <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.2)'}}>
-                    {new Date(l.created_at).toLocaleDateString('en-GB')}
+                    <div style={{display:'flex',gap:'.5rem',alignItems:'center'}}>
+                      {l.contract_address && <MintToggle contractAddress={l.contract_address} />}
+                      <button onClick={()=>setExpanded(expanded===l.id?null:l.id)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(124,111,247,.6)',background:'rgba(124,111,247,.06)',border:'.5px solid rgba(124,111,247,.2)',padding:'.3rem .7rem',borderRadius:'6px',cursor:'pointer',letterSpacing:'.04em'}}>
+                        {expanded===l.id?'hide whitelist':'manage whitelist'}
+                      </button>
+                    </div>
                   </div>
-                  {l.contract_address && (
-                    <MintToggle contractAddress={l.contract_address} />
-                  )}
+                  <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)'}}>
+                    deployed {new Date(l.created_at).toLocaleDateString('en-GB')}
+                    {l.contract_address && <span style={{marginLeft:'.75rem',color:'rgba(124,111,247,.5)'}}>{l.contract_address.slice(0,10)}...{l.contract_address.slice(-6)}</span>}
+                  </div>
                 </div>
               </div>
+              {expanded===l.id && l.contract_address && (
+                <div style={{padding:'0 1rem 1rem'}}>
+                  <WhitelistManager contractAddress={l.contract_address} />
+                </div>
+              )}
             </div>
           ))}
         </div>
