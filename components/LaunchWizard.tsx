@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useAccount, useConnect, useDeployContract } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { parseEther } from 'viem'
+import { supabase } from '@/lib/supabase'
 
 const ABI = [
   {
@@ -26,20 +27,17 @@ export default function LaunchWizard() {
   const [deployed, setDeployed] = useState('')
   const [form, setForm] = useState({
     name: '', symbol: '', description: '', website: '', twitter: '', discord: '',
-    supply: '', price: '', maxPerWallet: '', mintDate: '', whitelist: false,
+    supply: '', price: '', maxPerWallet: '', mintDate: '', whitelist: false, type: 'generative',
   })
 
-  const { isConnected } = useAccount()
+  const { address, isConnected } = useAccount()
   const { connect } = useConnect()
   const { deployContract } = useDeployContract()
 
   const update = (k: string, v: string | boolean) => setForm(f => ({ ...f, [k]: v }))
 
   const handleDeploy = async () => {
-    if (!isConnected) {
-      connect({ connector: injected() })
-      return
-    }
+    if (!isConnected) { connect({ connector: injected() }); return }
     setDeploying(true)
     try {
       const res = await fetch('/api/bytecode')
@@ -56,7 +54,20 @@ export default function LaunchWizard() {
           'ipfs://placeholder/',
         ],
       }, {
-        onSuccess: (hash) => {
+        onSuccess: async (hash) => {
+          await supabase.from('collections').insert({
+            name: form.name,
+            symbol: form.symbol,
+            description: form.description,
+            creator_address: address,
+            supply: parseInt(form.supply),
+            price: form.price,
+            max_per_wallet: parseInt(form.maxPerWallet) || 5,
+            whitelist: form.whitelist,
+            type: form.type,
+            tx_hash: hash,
+            status: 'live',
+          })
           setDeployed(hash)
           setDeploying(false)
         },
@@ -105,6 +116,16 @@ export default function LaunchWizard() {
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)', letterSpacing: '.08em', display: 'block', marginBottom: '.4rem' }}>description *</label>
             <textarea value={form.description} onChange={e => update('description', e.target.value)} placeholder="describe your collection..." rows={4} style={{ width: '100%', fontFamily: 'DM Mono,monospace', fontSize: '12px', background: '#0f0f14', border: `.5px solid ${form.description ? 'rgba(124,111,247,.4)' : 'rgba(255,255,255,.1)'}`, color: '#ededf0', padding: '.65rem .85rem', borderRadius: '7px', outline: 'none', resize: 'vertical' }} />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)', letterSpacing: '.08em', display: 'block', marginBottom: '.4rem' }}>type</label>
+            <div style={{ display: 'flex', gap: '.5rem' }}>
+              {['generative','pfp','art'].map(t => (
+                <button key={t} onClick={() => update('type', t)} style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: form.type === t ? '#080809' : 'rgba(255,255,255,.35)', background: form.type === t ? '#7c6ff7' : 'rgba(255,255,255,.04)', border: `.5px solid ${form.type === t ? '#7c6ff7' : 'rgba(255,255,255,.1)'}`, padding: '.4rem .9rem', borderRadius: '5px', cursor: 'pointer' }}>
+                  {t}
+                </button>
+              ))}
+            </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
             {[['website', 'https://yoursite.com'], ['twitter', '@yourhandle'], ['discord', 'discord.gg/...']].map(([k, ph]) => (
@@ -185,6 +206,7 @@ export default function LaunchWizard() {
                 {[
                   { label: 'name', val: form.name },
                   { label: 'symbol', val: form.symbol },
+                  { label: 'type', val: form.type },
                   { label: 'supply', val: form.supply + ' items' },
                   { label: 'mint price', val: form.price + ' RITUAL' },
                   { label: 'max per wallet', val: form.maxPerWallet || 'unlimited' },
@@ -212,15 +234,20 @@ export default function LaunchWizard() {
               <div style={{ fontSize: '48px', marginBottom: '1rem' }}>🔮</div>
               <div style={{ fontSize: '22px', fontWeight: 800, marginBottom: '.5rem' }}>collection deployed!</div>
               <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.35)', marginBottom: '2rem', lineHeight: 1.9 }}>
-                your contract is live on ritual testnet
+                your collection is now live on sigil.best
               </div>
               <div style={{ background: '#0f0f14', border: '.5px solid rgba(124,111,247,.2)', borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1.5rem', textAlign: 'left' }}>
                 <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.25)', marginBottom: '.4rem' }}>transaction hash</div>
                 <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#7c6ff7', wordBreak: 'break-all' }}>{deployed}</div>
               </div>
-              <a href={`https://explorer.ritualfoundation.org/tx/${deployed}`} target="_blank" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(124,111,247,.6)', textDecoration: 'none' }}>
-                view on explorer ↗
-              </a>
+              <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center' }}>
+                <a href="/" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: '#080809', background: '#7c6ff7', border: 'none', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>
+                  view on sigil ↗
+                </a>
+                <a href={`https://explorer.ritualfoundation.org/tx/${deployed}`} target="_blank" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.4)', background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>
+                  view on explorer ↗
+                </a>
+              </div>
             </div>
           )}
         </div>
