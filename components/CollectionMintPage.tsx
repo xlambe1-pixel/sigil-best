@@ -55,6 +55,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
     name: dbCollection.name,
     symbol: dbCollection.symbol,
     creator: dbCollection.creator_address ? dbCollection.creator_address.slice(0,6)+'...'+dbCollection.creator_address.slice(-4) : '@unknown',
+    creatorFull: dbCollection.creator_address || '',
     description: dbCollection.description || '',
     supply: dbCollection.supply || 0,
     price: dbCollection.price || '0.05',
@@ -84,6 +85,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   const priceNum = parseFloat(collection.price)
   const total = (priceNum * qty).toFixed(2)
   const isRealContract = collection.contract !== '0x0000000000000000000000000000000000000000'
+  const creatorAddress = (collection as any).creatorFull || ''
 
   const handleMint = () => {
     if (!isConnected) { connect({ connector: injected() }); return }
@@ -116,7 +118,9 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
             <div style={{fontSize:'26px',fontWeight:800,letterSpacing:'-.02em',marginBottom:'.35rem'}}>{collection.name}</div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.3)',display:'flex',alignItems:'center',gap:'.5rem'}}>
               <div style={{width:'18px',height:'18px',borderRadius:'50%',background:'rgba(124,111,247,.3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',color:'#7c6ff7',fontWeight:700}}>{collection.symbol?.slice(0,2)}</div>
-              by {collection.creator}
+              <a href={creatorAddress ? `/creator/${creatorAddress}` : '#'} style={{color:'#7c6ff7',textDecoration:'none',cursor:'pointer'}}>
+                by {collection.creator}
+              </a>
             </div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'8px',marginBottom:'1.5rem'}}>
