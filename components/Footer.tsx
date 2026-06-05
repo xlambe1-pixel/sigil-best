@@ -5,9 +5,14 @@ export default function Footer() {
         Sigil<span style={{color:'rgba(124,111,247,.35)'}}>.</span>
       </div>
       <div style={{display:'flex',gap:'1.5rem'}}>
-        {['about','docs','twitter','discord','explorer ↗'].map(l => (
-          <a key={l} href={l==='explorer ↗'?'https://explorer.ritualfoundation.org':'#'} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.2)',textDecoration:'none',letterSpacing:'.04em'}}>
-            {l}
+        {[
+          ['about','/about'],
+          ['faucet','/faucet'],
+          ['stats','/stats'],
+          ['explorer ↗','https://explorer.ritualfoundation.org'],
+        ].map(([label,href]) => (
+          <a key={label} href={href} target={href.startsWith('http')?'_blank':'_self'} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.2)',textDecoration:'none',letterSpacing:'.04em'}}>
+            {label}
           </a>
         ))}
       </div>
