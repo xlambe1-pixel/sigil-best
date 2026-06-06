@@ -25,7 +25,7 @@ const typeSymbol: Record<string,string> = { mint:'+', sale:'⇄', list:'◈' }
 
 function ShareModal({ collection, slug, artworkUrl, onClose }: { collection: any, slug: string, artworkUrl: string, onClose: () => void }) {
   const pageUrl = `https://sigil.best/collection/${slug}`
-  const twitterText = `Just minted from ${collection.name} on @sigil_best! 🔮\n\nNFT launchpad on Ritual Chain testnet.\n\nMint here: ${pageUrl}`
+  const twitterText = `Just minted from ${collection.name} on Sigil! 🔮\n\nFirst NFT launchpad on Ritual Chain testnet.\n\nMint here: ${pageUrl}\n\nsigil.best`
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}`
   const [copied, setCopied] = useState(false)
 
