@@ -1,15 +1,12 @@
 import Navbar from '@/components/Navbar'
-import Hero from '@/components/Hero'
-import CollectionsTable from '@/components/CollectionsTable'
-import Footer from '@/components/Footer'
+import CollectionMintPage from '@/components/CollectionMintPage'
 
-export default function Home() {
+export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   return (
     <main style={{minHeight:'100vh',background:'#080809',color:'#ededf0'}}>
       <Navbar />
-      <Hero />
-      <CollectionsTable />
-      <Footer />
+      <CollectionMintPage slug={decodeURIComponent(slug)} />
     </main>
   )
 }
