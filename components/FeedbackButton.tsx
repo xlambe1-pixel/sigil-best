@@ -4,16 +4,26 @@ import { useState } from 'react'
 export default function FeedbackButton() {
   const [open, setOpen] = useState(false)
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [type, setType] = useState<'bug'|'idea'|'other'>('idea')
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!feedback.trim()) return
-    const text = `[${type.toUpperCase()}] ${feedback}`
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent('Feedback for @sigil_best:\n\n' + text)}`
-    window.open(url, '_blank')
-    setSent(true)
-    setTimeout(() => { setSent(false); setFeedback(''); setOpen(false) }, 2000)
+    setSending(true)
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, message: feedback }),
+      })
+      setSent(true)
+      setTimeout(() => { setSent(false); setFeedback(''); setOpen(false) }, 2000)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -55,10 +65,10 @@ export default function FeedbackButton() {
           ) : (
             <button
               onClick={handleSend}
-              disabled={!feedback.trim()}
-              style={{width:'100%',background:feedback.trim()?'#7c6ff7':'rgba(255,255,255,.06)',border:'none',color:feedback.trim()?'#080809':'rgba(255,255,255,.25)',fontFamily:'DM Mono,monospace',fontSize:'12px',fontWeight:700,padding:'.6rem',borderRadius:'7px',cursor:feedback.trim()?'pointer':'not-allowed',letterSpacing:'.04em'}}
+              disabled={!feedback.trim() || sending}
+              style={{width:'100%',background:feedback.trim()&&!sending?'#7c6ff7':'rgba(255,255,255,.06)',border:'none',color:feedback.trim()&&!sending?'#080809':'rgba(255,255,255,.25)',fontFamily:'DM Mono,monospace',fontSize:'12px',fontWeight:700,padding:'.6rem',borderRadius:'7px',cursor:feedback.trim()&&!sending?'pointer':'not-allowed',letterSpacing:'.04em'}}
             >
-              send via twitter →
+              {sending ? 'sending...' : 'send feedback →'}
             </button>
           )}
         </div>
