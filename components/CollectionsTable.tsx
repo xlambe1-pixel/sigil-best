@@ -2,17 +2,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-
-const staticCollections = [
-  {rank:1, name:'Ethereal Voids', type:'generative', floor:0.12, offer:0.10, chg:143.2, vol:38.4, listed:165, slug:'ethereal-voids', artworkUrl:''},
-  {rank:2, name:'Runic Beasts', type:'pfp', floor:0.07, offer:0.06, chg:89.5, vol:24.1, listed:88, slug:'runic-beasts', artworkUrl:''},
-  {rank:3, name:'Quantum Masks', type:'art', floor:0.03, offer:0.025, chg:67.8, vol:18.6, listed:310, slug:'quantum-masks', artworkUrl:''},
-  {rank:4, name:'Obsidian Frames', type:'generative', floor:0.22, offer:0.20, chg:-8.4, vol:14.2, listed:42, slug:'obsidian-frames', artworkUrl:''},
-  {rank:5, name:'Pale Signals', type:'art', floor:0.09, offer:0.08, chg:0, vol:9.7, listed:0, slug:'pale-signals', artworkUrl:''},
-  {rank:6, name:'Null Portraits', type:'pfp', floor:0.15, offer:0.13, chg:-22.1, vol:7.3, listed:200, slug:'null-portraits', artworkUrl:''},
-  {rank:7, name:'Circuit Glyphs', type:'generative', floor:0.04, offer:0.035, chg:31.0, vol:5.8, listed:490, slug:'circuit-glyphs', artworkUrl:''},
-  {rank:8, name:'Drift Echoes', type:'art', floor:0.06, offer:0.05, chg:-4.7, vol:3.2, listed:130, slug:'drift-echoes', artworkUrl:''},
-]
+import { collections as staticCollections } from '@/lib/collections'
 
 const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10','#0e0e14','#100a14','#0c1018','#100810']
 const accents = ['#5b21b6','#1e3a5f','#6d28d9','#374151','#78350f','#166534','#1e1b4b','#6b21a8','#1e3a5f','#5b21b6']
@@ -39,6 +29,20 @@ export default function CollectionsTable() {
     fetchCollections()
   }, [])
 
+  const staticFormatted = staticCollections.map((c, i) => ({
+    rank: i + 1,
+    name: c.name,
+    type: c.type,
+    floor: c.floor,
+    offer: c.floor * 0.9,
+    chg: c.chg,
+    vol: c.volume,
+    listed: c.listed,
+    slug: c.slug,
+    artworkUrl: c.artworkUrl || '',
+    isNew: false,
+  }))
+
   const dbFormatted = dbCollections.map((c, i) => ({
     rank: staticCollections.length + i + 1,
     name: c.name,
@@ -53,7 +57,7 @@ export default function CollectionsTable() {
     isNew: true,
   }))
 
-  const allCollections = [...staticCollections, ...dbFormatted]
+  const allCollections = [...staticFormatted, ...dbFormatted]
 
   const filtered = allCollections.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase())
@@ -112,20 +116,20 @@ export default function CollectionsTable() {
           <div style={{display:'grid',gridTemplateColumns:'2.2rem 1fr 100px 100px 78px 96px 68px',padding:'.55rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.035)',alignItems:'center',cursor:'pointer'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.18)'}}>{c.rank}</div>
             <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
-              <div style={{width:'34px',height:'34px',borderRadius:'7px',background:colors[i%colors.length],flexShrink:0,position:'relative',overflow:'hidden'}}>
+              <div style={{width:'34px',height:'34px',borderRadius:'7px',flexShrink:0,position:'relative',overflow:'hidden',background:colors[i%colors.length]}}>
                 {c.artworkUrl ? (
                   <img src={c.artworkUrl} alt={c.name} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
                 ) : (
                   <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%, ${accents[i%accents.length]}88, transparent 70%)`}} />
                 )}
-                {(c as any).isNew && (
+                {c.isNew && (
                   <div style={{position:'absolute',top:2,right:2,width:'6px',height:'6px',borderRadius:'50%',background:'#4ade80'}} />
                 )}
               </div>
               <div>
                 <div style={{fontSize:'13px',fontWeight:600,color:'#ededf0',display:'flex',alignItems:'center',gap:'.4rem'}}>
                   {c.name}
-                  {(c as any).isNew && <span style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'#4ade80',background:'rgba(74,222,128,.1)',border:'.5px solid rgba(74,222,128,.2)',padding:'.1rem .4rem',borderRadius:'4px'}}>new</span>}
+                  {c.isNew && <span style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'#4ade80',background:'rgba(74,222,128,.1)',border:'.5px solid rgba(74,222,128,.2)',padding:'.1rem .4rem',borderRadius:'4px'}}>new</span>}
                 </div>
                 <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',marginTop:'.1rem'}}>{c.type}</div>
               </div>
