@@ -1,0 +1,24 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#080809"/>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#1a0f3a" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#080809" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c6ff7" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#7c6ff7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="600" cy="315" r="400" fill="url(#glow)"/>
+  <polygon points="600,180 720,245 720,375 600,440 480,375 480,245" fill="none" stroke="#7c6ff7" stroke-width="1.5" opacity="0.4"/>
+  <polygon points="600,220 690,265 690,355 600,400 510,355 510,265" fill="#7c6ff7" opacity="0.06"/>
+  <circle cx="600" cy="310" r="28" fill="#7c6ff7" opacity="0.9"/>
+  <circle cx="600" cy="310" r="16" fill="#080809"/>
+  <circle cx="600" cy="310" r="8" fill="#7c6ff7"/>
+  <text x="600" y="510" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="#ededf0" text-anchor="middle" letter-spacing="-2">Sigil<tspan fill="#7c6ff7">.</tspan></text>
+  <text x="600" y="560" font-family="Arial, monospace" font-size="20" fill="rgba(255,255,255,0.4)" text-anchor="middle" letter-spacing="3">NFT LAUNCHPAD ON RITUAL CHAIN</text>
+  <line x1="480" y1="580" x2="720" y2="580" stroke="rgba(124,111,247,0.3)" stroke-width="1"/>
+  <text x="600" y="605" font-family="Arial, monospace" font-size="14" fill="rgba(255,255,255,0.2)" text-anchor="middle" letter-spacing="2">sigil.best · ritual testnet · chain id 1979</text>
+</svg>

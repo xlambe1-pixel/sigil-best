@@ -8,15 +8,24 @@ export const metadata: Metadata = {
   keywords: 'NFT, Ritual Chain, launchpad, mint, marketplace, web3',
   openGraph: {
     title: 'Sigil — NFT Launchpad on Ritual Chain',
-    description: 'Launch, mint and trade NFTs on Ritual Chain.',
+    description: 'Launch, mint and trade NFTs on Ritual Chain. The first NFT marketplace and launchpad on Ritual testnet.',
     url: 'https://sigil.best',
     siteName: 'Sigil',
     type: 'website',
+    images: [
+      {
+        url: 'https://sigil.best/og-image.svg',
+        width: 1200,
+        height: 630,
+        alt: 'Sigil — NFT Launchpad on Ritual Chain',
+      }
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Sigil — NFT Launchpad on Ritual Chain',
     description: 'Launch, mint and trade NFTs on Ritual Chain.',
+    images: ['https://sigil.best/og-image.svg'],
   },
   icons: {
     icon: '/favicon.svg',
