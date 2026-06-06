@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Providers from '@/components/WagmiProvider'
+import FeedbackButton from '@/components/FeedbackButton'
 
 export const metadata: Metadata = {
   title: 'Sigil — NFT Launchpad on Ritual Chain',
@@ -12,14 +13,7 @@ export const metadata: Metadata = {
     url: 'https://sigil.best',
     siteName: 'Sigil',
     type: 'website',
-    images: [
-      {
-        url: 'https://sigil.best/og-image.svg',
-        width: 1200,
-        height: 630,
-        alt: 'Sigil — NFT Launchpad on Ritual Chain',
-      }
-    ],
+    images: [{ url: 'https://sigil.best/og-image.svg', width: 1200, height: 630, alt: 'Sigil' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -27,9 +21,7 @@ export const metadata: Metadata = {
     description: 'Launch, mint and trade NFTs on Ritual Chain.',
     images: ['https://sigil.best/og-image.svg'],
   },
-  icons: {
-    icon: '/favicon.svg',
-  },
+  icons: { icon: '/favicon.svg' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -41,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>
           {children}
+          <FeedbackButton />
         </Providers>
       </body>
     </html>
