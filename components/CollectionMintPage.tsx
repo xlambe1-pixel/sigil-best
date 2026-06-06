@@ -108,6 +108,10 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   const creatorAddress = (collection as any).creatorFull || ''
   const artworkUrl = (collection as any).artworkUrl || ''
 
+  const pageUrl = `https://sigil.best/collection/${slug}`
+  const twitterText = `Just minted from ${collection.name} on @sigil_best! 🔮\n\nNFT launchpad on Ritual Chain testnet.\n\nMint here: ${pageUrl}`
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}`
+
   const handleMint = () => {
     if (!isConnected) { connect({ connector: injected() }); return }
     if (!isRealContract) return
@@ -145,7 +149,17 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
           </div>
 
           <div style={{marginBottom:'1.5rem'}}>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',letterSpacing:'.08em',marginBottom:'.4rem'}}>✓ verified collection · ritual testnet</div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.4rem'}}>
+              <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',letterSpacing:'.08em'}}>✓ verified collection · ritual testnet</div>
+              <div style={{display:'flex',gap:'.5rem'}}>
+                <a href={twitterUrl} target="_blank" style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.25rem .65rem',borderRadius:'5px',textDecoration:'none',display:'flex',alignItems:'center',gap:'.35rem',cursor:'pointer'}}>
+                  𝕏 share
+                </a>
+                <button onClick={()=>navigator.clipboard.writeText(pageUrl)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.25rem .65rem',borderRadius:'5px',cursor:'pointer'}}>
+                  copy link
+                </button>
+              </div>
+            </div>
             <div style={{fontSize:'26px',fontWeight:800,letterSpacing:'-.02em',marginBottom:'.35rem'}}>{collection.name}</div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.3)',display:'flex',alignItems:'center',gap:'.5rem'}}>
               <div style={{width:'18px',height:'18px',borderRadius:'50%',background:'rgba(124,111,247,.3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',color:'#7c6ff7',fontWeight:700}}>{collection.symbol?.slice(0,2)}</div>
@@ -220,7 +234,13 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
               </div>
             </div>
 
-            {isSuccess && <div style={{background:'rgba(74,222,128,.08)',border:'.5px solid rgba(74,222,128,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80'}}>✓ minted successfully!</div>}
+            {isSuccess && (
+              <div style={{background:'rgba(74,222,128,.08)',border:'.5px solid rgba(74,222,128,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80'}}>
+                ✓ minted successfully!
+                <a href={twitterUrl} target="_blank" style={{marginLeft:'1rem',color:'#7c6ff7',textDecoration:'none'}}>share on 𝕏 →</a>
+              </div>
+            )}
+
             {error && <div style={{background:'rgba(248,113,113,.08)',border:'.5px solid rgba(248,113,113,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#f87171'}}>✗ {error.message.slice(0,80)}...</div>}
 
             <button onClick={handleMint} disabled={isPending||!isLive||!isRealContract} style={{width:'100%',background:isPending||!isLive||!isRealContract?'rgba(124,111,247,.4)':'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'14px',padding:'.75rem',borderRadius:'8px',cursor:isPending||!isLive||!isRealContract?'not-allowed':'pointer',letterSpacing:'.04em',marginBottom:'.65rem'}}>
