@@ -33,9 +33,7 @@ function ShareModal({ collection, slug, artworkUrl, onClose }: { collection: any
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.85)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem'}} onClick={onClose}>
       <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.1)',borderRadius:'16px',padding:'1.5rem',maxWidth:'420px',width:'100%',position:'relative'}} onClick={e=>e.stopPropagation()}>
         <button onClick={onClose} style={{position:'absolute',top:'1rem',right:'1rem',background:'transparent',border:'none',color:'rgba(255,255,255,.4)',fontSize:'18px',cursor:'pointer'}}>✕</button>
-
         <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.1em',marginBottom:'1rem'}}>// share this collection</div>
-
         {artworkUrl && (
           <div style={{borderRadius:'10px',overflow:'hidden',marginBottom:'1rem',height:'200px',position:'relative'}}>
             <img src={artworkUrl} alt={collection.name} style={{width:'100%',height:'100%',objectFit:'cover'}} />
@@ -45,28 +43,24 @@ function ShareModal({ collection, slug, artworkUrl, onClose }: { collection: any
             </div>
           </div>
         )}
-
         <div style={{background:'#080809',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'8px',padding:'.75rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.5)',lineHeight:1.8}}>
-          Just minted from <span style={{color:'#ededf0',fontWeight:600}}>{collection.name}</span> on @sigil_best! 🔮<br/>
-          NFT launchpad on Ritual Chain testnet.<br/>
+          Just minted from <span style={{color:'#ededf0',fontWeight:600}}>{collection.name}</span> on Sigil! 🔮<br/>
+          First NFT launchpad on Ritual Chain testnet.<br/>
           <span style={{color:'#7c6ff7'}}>sigil.best/collection/{slug.slice(0,12)}...</span>
         </div>
-
         <div style={{display:'flex',gap:'.75rem',marginBottom:'1rem'}}>
           <a href={twitterUrl} target="_blank" style={{flex:1,fontFamily:'DM Mono,monospace',fontSize:'12px',color:'#080809',background:'#ededf0',border:'none',padding:'.65rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em',textAlign:'center',display:'block',fontWeight:700}}>
             𝕏 post on twitter
           </a>
         </div>
-
         <div style={{display:'flex',gap:'.5rem'}}>
           <div style={{flex:1,background:'#080809',border:'.5px solid rgba(255,255,255,.08)',borderRadius:'6px',padding:'.5rem .75rem',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.3)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             sigil.best/collection/{slug.slice(0,16)}...
           </div>
-          <button onClick={()=>{navigator.clipboard.writeText(`https://sigil.best/collection/${slug}`);setCopied(true);setTimeout(()=>setCopied(false),2000)}} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:copied?'#4ade80':'rgba(255,255,255,.5)',background:'rgba(255,255,255,.05)',border:`.5px solid ${copied?'rgba(74,222,128,.3)':'rgba(255,255,255,.1)'}`,padding:'.5rem .85rem',borderRadius:'6px',cursor:'pointer',whiteSpace:'nowrap'}}>
+          <button onClick={()=>{navigator.clipboard.writeText(pageUrl);setCopied(true);setTimeout(()=>setCopied(false),2000)}} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:copied?'#4ade80':'rgba(255,255,255,.5)',background:'rgba(255,255,255,.05)',border:`.5px solid ${copied?'rgba(74,222,128,.3)':'rgba(255,255,255,.1)'}`,padding:'.5rem .85rem',borderRadius:'6px',cursor:'pointer',whiteSpace:'nowrap'}}>
             {copied?'copied!':'copy link'}
           </button>
         </div>
-
         {artworkUrl && (
           <div style={{marginTop:'.75rem',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)',textAlign:'center'}}>
             tip: right-click the image above to save it for your tweet 📸
@@ -183,16 +177,13 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   return (
     <div>
       {showShare && <ShareModal collection={collection} slug={slug} artworkUrl={artworkUrl} onClose={()=>setShowShare(false)} />}
-
       <div style={{display:'flex',alignItems:'center',gap:'.5rem',padding:'.65rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.05)',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.25)'}}>
         <a href="/" style={{color:'rgba(255,255,255,.25)',textDecoration:'none'}}>explore</a>
         <span>›</span>
         <span style={{color:'rgba(255,255,255,.5)'}}>{collection.name}</span>
       </div>
-
       <div style={{display:'grid',gridTemplateColumns:'1fr 360px',minHeight:'600px'}}>
         <div style={{padding:'2rem 1.75rem',borderRight:'.5px solid rgba(255,255,255,.06)'}}>
-
           <div style={{borderRadius:'12px',overflow:'hidden',marginBottom:'1.5rem',position:'relative',height:'340px',background:collection.bg}}>
             {artworkUrl ? (
               <img src={artworkUrl} alt={collection.name} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
@@ -204,23 +195,19 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
               </>
             )}
           </div>
-
           <div style={{marginBottom:'1.5rem'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.4rem'}}>
               <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',letterSpacing:'.08em'}}>✓ verified collection · ritual testnet</div>
-              <button onClick={()=>setShowShare(true)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.25rem .65rem',borderRadius:'5px',cursor:'pointer',display:'flex',alignItems:'center',gap:'.35rem'}}>
+              <button onClick={()=>setShowShare(true)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.25rem .65rem',borderRadius:'5px',cursor:'pointer'}}>
                 𝕏 share
               </button>
             </div>
             <div style={{fontSize:'26px',fontWeight:800,letterSpacing:'-.02em',marginBottom:'.35rem'}}>{collection.name}</div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.3)',display:'flex',alignItems:'center',gap:'.5rem'}}>
               <div style={{width:'18px',height:'18px',borderRadius:'50%',background:'rgba(124,111,247,.3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',color:'#7c6ff7',fontWeight:700}}>{collection.symbol?.slice(0,2)}</div>
-              <a href={creatorAddress ? `/creator/${creatorAddress}` : '#'} style={{color:'#7c6ff7',textDecoration:'none'}}>
-                by {collection.creator}
-              </a>
+              <a href={creatorAddress ? `/creator/${creatorAddress}` : '#'} style={{color:'#7c6ff7',textDecoration:'none'}}>by {collection.creator}</a>
             </div>
           </div>
-
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'8px',marginBottom:'1.5rem'}}>
             {[
               {label:'supply', val:supply.toLocaleString(), sub:'total items'},
@@ -235,18 +222,15 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
               </div>
             ))}
           </div>
-
           <div style={{marginBottom:'1.5rem'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.1em',marginBottom:'.6rem'}}>// about</div>
             <div style={{fontSize:'13px',color:'rgba(255,255,255,.45)',lineHeight:1.9,fontWeight:300}}>{collection.description || 'no description provided.'}</div>
           </div>
-
           <div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.1em',marginBottom:'.6rem'}}>// contract</div>
             <a href={`https://explorer.ritualfoundation.org/address/${collection.contract}`} target="_blank" style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#7c6ff7',textDecoration:'none',wordBreak:'break-all'}}>{collection.contract} ↗</a>
           </div>
         </div>
-
         <div style={{padding:'2rem 1.5rem'}}>
           <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.1)',borderRadius:'12px',padding:'1.25rem',marginBottom:'1rem'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.1rem'}}>
@@ -256,14 +240,12 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
                 {isRealContract?(isLive?'live':'paused'):'no contract'}
               </div>
             </div>
-
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'1rem',paddingBottom:'1rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
               <div>
                 <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.08em',marginBottom:'.25rem'}}>price per nft</div>
                 <div style={{fontSize:'24px',fontWeight:800}}>{collection.price}<span style={{fontSize:'13px',fontWeight:400,color:'rgba(124,111,247,.7)',marginLeft:'.3rem'}}>RITUAL</span></div>
               </div>
             </div>
-
             {isRealContract && (
               <div style={{marginBottom:'1rem'}}>
                 <div style={{display:'flex',justifyContent:'space-between',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.28)',marginBottom:'.5rem',letterSpacing:'.04em'}}>
@@ -274,7 +256,6 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
                 </div>
               </div>
             )}
-
             <div style={{marginBottom:'1rem'}}>
               <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.08em',marginBottom:'.5rem'}}>quantity</div>
               <div style={{display:'flex',alignItems:'center',gap:'.75rem'}}>
@@ -285,24 +266,18 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
                 <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.35)'}}>= {total} RITUAL</div>
               </div>
             </div>
-
             {isSuccess && (
               <div style={{background:'rgba(74,222,128,.08)',border:'.5px solid rgba(74,222,128,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <span>✓ minted successfully!</span>
-                <button onClick={()=>setShowShare(true)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',background:'transparent',border:'.5px solid rgba(124,111,247,.3)',padding:'.2rem .55rem',borderRadius:'4px',cursor:'pointer'}}>
-                  share 𝕏
-                </button>
+                <button onClick={()=>setShowShare(true)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',background:'transparent',border:'.5px solid rgba(124,111,247,.3)',padding:'.2rem .55rem',borderRadius:'4px',cursor:'pointer'}}>share 𝕏</button>
               </div>
             )}
-
             {error && <div style={{background:'rgba(248,113,113,.08)',border:'.5px solid rgba(248,113,113,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#f87171'}}>✗ {error.message.slice(0,80)}...</div>}
-
             <button onClick={handleMint} disabled={isPending||!isLive||!isRealContract} style={{width:'100%',background:isPending||!isLive||!isRealContract?'rgba(124,111,247,.4)':'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'14px',padding:'.75rem',borderRadius:'8px',cursor:isPending||!isLive||!isRealContract?'not-allowed':'pointer',letterSpacing:'.04em',marginBottom:'.65rem'}}>
               {isPending?'confirming...':!isRealContract?'no contract':!isLive?'mint paused':isConnected?'mint now':'connect wallet to mint'}
             </button>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)',textAlign:'center',letterSpacing:'.03em',lineHeight:1.7}}>gas fees estimated ~0.001 RITUAL · ritual testnet</div>
           </div>
-
           <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'10px',overflow:'hidden'}}>
             <div style={{padding:'.75rem 1rem',borderBottom:'.5px solid rgba(255,255,255,.06)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.28)',letterSpacing:'.1em'}}>recent activity</div>
