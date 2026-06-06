@@ -23,10 +23,65 @@ const typeColor: Record<string,string> = { mint:'rgba(74,222,128,.1)', sale:'rgb
 const typeText: Record<string,string> = { mint:'#4ade80', sale:'#fbbf24', list:'#7c6ff7' }
 const typeSymbol: Record<string,string> = { mint:'+', sale:'⇄', list:'◈' }
 
+function ShareModal({ collection, slug, artworkUrl, onClose }: { collection: any, slug: string, artworkUrl: string, onClose: () => void }) {
+  const pageUrl = `https://sigil.best/collection/${slug}`
+  const twitterText = `Just minted from ${collection.name} on @sigil_best! 🔮\n\nNFT launchpad on Ritual Chain testnet.\n\nMint here: ${pageUrl}`
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}`
+  const [copied, setCopied] = useState(false)
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.85)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem'}} onClick={onClose}>
+      <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.1)',borderRadius:'16px',padding:'1.5rem',maxWidth:'420px',width:'100%',position:'relative'}} onClick={e=>e.stopPropagation()}>
+        <button onClick={onClose} style={{position:'absolute',top:'1rem',right:'1rem',background:'transparent',border:'none',color:'rgba(255,255,255,.4)',fontSize:'18px',cursor:'pointer'}}>✕</button>
+
+        <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.1em',marginBottom:'1rem'}}>// share this collection</div>
+
+        {artworkUrl && (
+          <div style={{borderRadius:'10px',overflow:'hidden',marginBottom:'1rem',height:'200px',position:'relative'}}>
+            <img src={artworkUrl} alt={collection.name} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+            <div style={{position:'absolute',bottom:0,left:0,right:0,background:'linear-gradient(to top, rgba(8,8,9,.95) 0%, transparent 60%)',padding:'.75rem'}}>
+              <div style={{fontSize:'14px',fontWeight:700}}>{collection.name}</div>
+              <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.4)'}}>sigil.best · ritual testnet</div>
+            </div>
+          </div>
+        )}
+
+        <div style={{background:'#080809',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'8px',padding:'.75rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.5)',lineHeight:1.8}}>
+          Just minted from <span style={{color:'#ededf0',fontWeight:600}}>{collection.name}</span> on @sigil_best! 🔮<br/>
+          NFT launchpad on Ritual Chain testnet.<br/>
+          <span style={{color:'#7c6ff7'}}>sigil.best/collection/{slug.slice(0,12)}...</span>
+        </div>
+
+        <div style={{display:'flex',gap:'.75rem',marginBottom:'1rem'}}>
+          <a href={twitterUrl} target="_blank" style={{flex:1,fontFamily:'DM Mono,monospace',fontSize:'12px',color:'#080809',background:'#ededf0',border:'none',padding:'.65rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em',textAlign:'center',display:'block',fontWeight:700}}>
+            𝕏 post on twitter
+          </a>
+        </div>
+
+        <div style={{display:'flex',gap:'.5rem'}}>
+          <div style={{flex:1,background:'#080809',border:'.5px solid rgba(255,255,255,.08)',borderRadius:'6px',padding:'.5rem .75rem',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.3)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            sigil.best/collection/{slug.slice(0,16)}...
+          </div>
+          <button onClick={()=>{navigator.clipboard.writeText(`https://sigil.best/collection/${slug}`);setCopied(true);setTimeout(()=>setCopied(false),2000)}} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:copied?'#4ade80':'rgba(255,255,255,.5)',background:'rgba(255,255,255,.05)',border:`.5px solid ${copied?'rgba(74,222,128,.3)':'rgba(255,255,255,.1)'}`,padding:'.5rem .85rem',borderRadius:'6px',cursor:'pointer',whiteSpace:'nowrap'}}>
+            {copied?'copied!':'copy link'}
+          </button>
+        </div>
+
+        {artworkUrl && (
+          <div style={{marginTop:'.75rem',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)',textAlign:'center'}}>
+            tip: right-click the image above to save it for your tweet 📸
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function CollectionMintPage({ slug }: { slug: string }) {
   const [qty, setQty] = useState(1)
   const [dbCollection, setDbCollection] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [showShare, setShowShare] = useState(false)
   const { isConnected } = useAccount()
   const { connect } = useConnect()
   const { writeContract, isPending, isSuccess, error } = useWriteContract()
@@ -108,10 +163,6 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   const creatorAddress = (collection as any).creatorFull || ''
   const artworkUrl = (collection as any).artworkUrl || ''
 
-  const pageUrl = `https://sigil.best/collection/${slug}`
-  const twitterText = `Just minted from ${collection.name} on @sigil_best! 🔮\n\nNFT launchpad on Ritual Chain testnet.\n\nMint here: ${pageUrl}`
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}`
-
   const handleMint = () => {
     if (!isConnected) { connect({ connector: injected() }); return }
     if (!isRealContract) return
@@ -122,17 +173,23 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
       args: [BigInt(qty)],
       value: parseEther((priceNum * qty).toString()),
     }, {
-      onSuccess: () => setTimeout(() => refetchMinted(), 2000)
+      onSuccess: () => {
+        setTimeout(() => refetchMinted(), 2000)
+        setShowShare(true)
+      }
     })
   }
 
   return (
     <div>
+      {showShare && <ShareModal collection={collection} slug={slug} artworkUrl={artworkUrl} onClose={()=>setShowShare(false)} />}
+
       <div style={{display:'flex',alignItems:'center',gap:'.5rem',padding:'.65rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.05)',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.25)'}}>
         <a href="/" style={{color:'rgba(255,255,255,.25)',textDecoration:'none'}}>explore</a>
         <span>›</span>
         <span style={{color:'rgba(255,255,255,.5)'}}>{collection.name}</span>
       </div>
+
       <div style={{display:'grid',gridTemplateColumns:'1fr 360px',minHeight:'600px'}}>
         <div style={{padding:'2rem 1.75rem',borderRight:'.5px solid rgba(255,255,255,.06)'}}>
 
@@ -151,14 +208,9 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
           <div style={{marginBottom:'1.5rem'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.4rem'}}>
               <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',letterSpacing:'.08em'}}>✓ verified collection · ritual testnet</div>
-              <div style={{display:'flex',gap:'.5rem'}}>
-                <a href={twitterUrl} target="_blank" style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.25rem .65rem',borderRadius:'5px',textDecoration:'none',display:'flex',alignItems:'center',gap:'.35rem',cursor:'pointer'}}>
-                  𝕏 share
-                </a>
-                <button onClick={()=>navigator.clipboard.writeText(pageUrl)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.25rem .65rem',borderRadius:'5px',cursor:'pointer'}}>
-                  copy link
-                </button>
-              </div>
+              <button onClick={()=>setShowShare(true)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.25rem .65rem',borderRadius:'5px',cursor:'pointer',display:'flex',alignItems:'center',gap:'.35rem'}}>
+                𝕏 share
+              </button>
             </div>
             <div style={{fontSize:'26px',fontWeight:800,letterSpacing:'-.02em',marginBottom:'.35rem'}}>{collection.name}</div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.3)',display:'flex',alignItems:'center',gap:'.5rem'}}>
@@ -235,9 +287,11 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
             </div>
 
             {isSuccess && (
-              <div style={{background:'rgba(74,222,128,.08)',border:'.5px solid rgba(74,222,128,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80'}}>
-                ✓ minted successfully!
-                <a href={twitterUrl} target="_blank" style={{marginLeft:'1rem',color:'#7c6ff7',textDecoration:'none'}}>share on 𝕏 →</a>
+              <div style={{background:'rgba(74,222,128,.08)',border:'.5px solid rgba(74,222,128,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span>✓ minted successfully!</span>
+                <button onClick={()=>setShowShare(true)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'#7c6ff7',background:'transparent',border:'.5px solid rgba(124,111,247,.3)',padding:'.2rem .55rem',borderRadius:'4px',cursor:'pointer'}}>
+                  share 𝕏
+                </button>
               </div>
             )}
 
