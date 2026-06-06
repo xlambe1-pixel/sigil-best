@@ -9,12 +9,12 @@ export default function Hero() {
       <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.12em',marginBottom:'.75rem'}}>
         // featured collections
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr',gap:'8px',height:'120px'}}>
+      <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr',gap:'8px'}}>
         {featured.map((c,i) => (
           <Link key={i} href={`/collection/${c.slug}`} style={{textDecoration:'none'}}>
-            <div style={{position:'relative',borderRadius:'8px',overflow:'hidden',cursor:'pointer',background:c.bg,height:'100%'}}>
+            <div style={{position:'relative',borderRadius:'8px',overflow:'hidden',cursor:'pointer',background:c.bg,height:'120px'}}>
               {c.artworkUrl ? (
-                <img src={c.artworkUrl} alt={c.name} style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 20%',display:'block'}} />
+                <img src={c.artworkUrl} alt={c.name} style={{width:'100%',height:'120px',objectFit:'cover',objectPosition:'center 20%',display:'block'}} />
               ) : (
                 <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 30% 40%, ${c.accent}66, transparent 70%)`}} />
               )}
