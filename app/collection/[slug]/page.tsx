@@ -1,12 +1,19 @@
 import Navbar from '@/components/Navbar'
-import CollectionMintPage from '@/components/CollectionMintPage'
+import Hero from '@/components/Hero'
+import Stats from '@/components/Stats'
+import BiggestMovers from '@/components/BiggestMovers'
+import CollectionsTable from '@/components/CollectionsTable'
+import Footer from '@/components/Footer'
 
-export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+export default function Home() {
   return (
     <main style={{minHeight:'100vh',background:'#080809',color:'#ededf0'}}>
       <Navbar />
-      <CollectionMintPage slug={decodeURIComponent(slug)} />
+      <Hero />
+      <Stats />
+      <BiggestMovers />
+      <CollectionsTable />
+      <Footer />
     </main>
   )
 }
