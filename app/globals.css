@@ -4,8 +4,13 @@
 
 body {
   background: #080809;
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(0, 255, 100, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 200, 80, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(0, 255, 120, 0.02) 0%, transparent 40%);
   color: #ededf0;
   font-family: 'Syne', sans-serif;
+  min-height: 100vh;
 }
 
 .mono { font-family: 'DM Mono', monospace; }
