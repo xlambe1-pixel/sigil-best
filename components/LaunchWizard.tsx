@@ -22,6 +22,10 @@ const ABI = [
 
 const steps = ['collection info', 'artwork', 'mint config', 'review & deploy']
 
+function generateSlug(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
 export default function LaunchWizard() {
   const [step, setStep] = useState(0)
   const [deploying, setDeploying] = useState(false)
@@ -64,6 +68,7 @@ export default function LaunchWizard() {
           try {
             const receipt = await publicClient!.waitForTransactionReceipt({ hash })
             const contractAddr = receipt.contractAddress || ''
+            const slug = generateSlug(form.name)
             await supabase.from('collections').insert({
               name: form.name,
               symbol: form.symbol,
@@ -75,6 +80,7 @@ export default function LaunchWizard() {
               whitelist: form.whitelist,
               type: form.type,
               tx_hash: hash,
+              slug: slug,
               contract_address: contractAddr,
               artwork_url: artworkUrl,
               artwork_hash: artworkHash,
@@ -124,6 +130,7 @@ export default function LaunchWizard() {
             <div>
               <label style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)', letterSpacing: '.08em', display: 'block', marginBottom: '.4rem' }}>collection name *</label>
               <input value={form.name} onChange={e => update('name', e.target.value)} placeholder="e.g. Ethereal Voids" style={{ width: '100%', fontFamily: 'DM Mono,monospace', fontSize: '12px', background: '#0f0f14', border: `.5px solid ${form.name ? 'rgba(124,111,247,.4)' : 'rgba(255,255,255,.1)'}`, color: '#ededf0', padding: '.65rem .85rem', borderRadius: '7px', outline: 'none' }} />
+              {form.name && <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.25)',marginTop:'.3rem'}}>slug: sigil.best/collection/{generateSlug(form.name)}</div>}
             </div>
             <div>
               <label style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)', letterSpacing: '.08em', display: 'block', marginBottom: '.4rem' }}>symbol *</label>
@@ -216,18 +223,19 @@ export default function LaunchWizard() {
                 <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.25)', letterSpacing: '.1em', marginBottom: '1rem' }}>// review your collection</div>
                 {[
                   { label: 'name', val: form.name },
+                  { label: 'slug', val: `sigil.best/collection/${generateSlug(form.name)}` },
                   { label: 'symbol', val: form.symbol },
                   { label: 'type', val: form.type },
                   { label: 'supply', val: form.supply + ' items' },
                   { label: 'mint price', val: form.price + ' RITUAL' },
                   { label: 'max per wallet', val: form.maxPerWallet || 'unlimited' },
                   { label: 'whitelist', val: form.whitelist ? 'enabled' : 'disabled' },
-                  { label: 'artwork', val: artworkUrl ? '✓ uploaded to ipfs' : '— no artwork (using placeholder)' },
+                  { label: 'artwork', val: artworkUrl ? '✓ uploaded to ipfs' : '— no artwork' },
                   { label: 'network', val: 'ritual testnet · chain id 1979' },
                 ].map(r => (
                   <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '.5rem 0', borderBottom: '.5px solid rgba(255,255,255,.04)' }}>
                     <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: 'rgba(255,255,255,.3)', letterSpacing: '.05em' }}>{r.label}</div>
-                    <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: r.label==='artwork'&&artworkUrl?'#4ade80':'#ededf0' }}>{r.val}</div>
+                    <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: r.label==='artwork'&&artworkUrl?'#4ade80':r.label==='slug'?'#7c6ff7':'#ededf0' }}>{r.val}</div>
                   </div>
                 ))}
               </div>
@@ -253,11 +261,11 @@ export default function LaunchWizard() {
                 </div>
               )}
               <div style={{ background: '#0f0f14', border: '.5px solid rgba(124,111,247,.2)', borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1.5rem', textAlign: 'left' }}>
-                <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.25)', marginBottom: '.4rem' }}>transaction hash</div>
-                <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#7c6ff7', wordBreak: 'break-all' }}>{deployed}</div>
+                <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.25)', marginBottom: '.4rem' }}>collection url</div>
+                <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#7c6ff7' }}>sigil.best/collection/{generateSlug(form.name)}</div>
               </div>
               <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center' }}>
-                <a href="/my-launches" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: '#080809', background: '#7c6ff7', border: 'none', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>view my launches ↗</a>
+                <a href={`/collection/${generateSlug(form.name)}`} style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: '#080809', background: '#7c6ff7', border: 'none', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>view my collection ↗</a>
                 <a href={`https://explorer.ritualfoundation.org/tx/${deployed}`} target="_blank" style={{ fontFamily: 'DM Mono,monospace', fontSize: '12px', color: 'rgba(255,255,255,.4)', background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', padding: '.6rem 1.25rem', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', letterSpacing: '.04em' }}>view on explorer ↗</a>
               </div>
             </div>
