@@ -5,9 +5,6 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import WhitelistManager from './WhitelistManager'
 
-const colors = ['#0c0818','#0d1520','#0e0820','#111118','#130e00','#0a1a10']
-const accents = ['#5b21b6','#1e3a5f','#6d28d9','#374151','#78350f','#166534']
-
 const ABI = [
   { name:'setMintOpen', type:'function', stateMutability:'nonpayable', inputs:[{name:'_open',type:'bool'}], outputs:[] },
   { name:'mintOpen', type:'function', stateMutability:'view', inputs:[], outputs:[{type:'bool'}] },
@@ -107,9 +104,13 @@ export default function MyLaunches() {
             <div key={l.id} style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',overflow:'hidden'}}>
               <div style={{display:'grid',gridTemplateColumns:'120px 1fr',alignItems:'stretch'}}>
                 <a href={`/collection/${l.tx_hash||l.id}`} style={{textDecoration:'none',color:'inherit'}}>
-                  <div style={{height:'100%',minHeight:'100px',background:colors[i%colors.length],position:'relative'}}>
-                    <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 35% 40%, ${accents[i%accents.length]}88, transparent 65%)`}} />
-                    <div style={{position:'absolute',bottom:'8px',left:'8px',fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.3)',background:'rgba(8,8,9,.6)',padding:'.15rem .4rem',borderRadius:'3px'}}>{l.symbol}</div>
+                  <div style={{height:'100%',minHeight:'100px',position:'relative',overflow:'hidden',background:'#0c0818'}}>
+                    {l.artwork_url ? (
+                      <img src={l.artwork_url} alt={l.name} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                    ) : (
+                      <div style={{position:'absolute',inset:0,background:'radial-gradient(circle at 35% 40%, #5b21b688, transparent 65%)'}} />
+                    )}
+                    <div style={{position:'absolute',bottom:'8px',left:'8px',fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.4)',background:'rgba(8,8,9,.7)',padding:'.15rem .4rem',borderRadius:'3px'}}>{l.symbol}</div>
                   </div>
                 </a>
                 <div style={{padding:'.85rem 1rem'}}>
