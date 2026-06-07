@@ -12,6 +12,7 @@ export default function Hero() {
       const { data } = await supabase
         .from('collections')
         .select('*')
+        .eq('status', 'live')
         .not('artwork_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(3)
@@ -56,11 +57,11 @@ export default function Hero() {
           <Link key={i} href={`/collection/${c.slug}`} style={{textDecoration:'none'}}>
             <div style={{position:'relative',borderRadius:'10px',overflow:'hidden',cursor:'pointer',background:c.bg,height:'400px'}}>
               {c.artworkUrl ? (
-                <img src={c.artworkUrl} alt={c.name} style={{width:'100%',height:'400px',objectFit:'cover',objectPosition:'center',display:'block',opacity:0.7}} />
+                <img src={c.artworkUrl} alt={c.name} style={{width:'100%',height:'400px',objectFit:'cover',objectPosition:'center',display:'block'}} />
               ) : (
                 <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 30% 40%, ${c.accent}66, transparent 70%)`}} />
               )}
-              <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(8,8,9,.95) 0%, rgba(8,8,9,.1) 60%, transparent 100%)'}} />
+              <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(8,8,9,.95) 0%, transparent 50%)'}} />
               <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'1rem'}}>
                 <div style={{fontSize:'16px',fontWeight:700,color:'#ededf0',marginBottom:'.35rem'}}>{c.name}</div>
                 <div style={{display:'flex',alignItems:'center',gap:'8px',fontFamily:'DM Mono,monospace',fontSize:'10px'}}>
