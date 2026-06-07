@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, message } = await req.json()
+    const { type, message, name } = await req.json()
 
     if (!message) {
       return NextResponse.json({ error: 'No message' }, { status: 400 })
@@ -17,13 +17,14 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from: 'Sigil Feedback <onboarding@resend.dev>',
         to: 'xlambe1@gmail.com',
-        subject: `[${type.toUpperCase()}] Sigil Feedback`,
+        subject: `[${type.toUpperCase()}] Sigil Feedback from ${name || 'anonymous'}`,
         html: `
           <div style="font-family: monospace; padding: 20px;">
             <h2>New Feedback from sigil.best</h2>
+            <p><strong>From:</strong> ${name || 'anonymous'}</p>
             <p><strong>Type:</strong> ${type}</p>
             <p><strong>Message:</strong></p>
-            <p>${message}</p>
+            <p style="background:#f5f5f5;padding:12px;border-radius:6px;">${message}</p>
           </div>
         `,
       }),

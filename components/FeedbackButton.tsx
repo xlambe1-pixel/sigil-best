@@ -6,6 +6,7 @@ export default function FeedbackButton() {
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
   const [feedback, setFeedback] = useState('')
+  const [name, setName] = useState('')
   const [type, setType] = useState<'bug'|'idea'|'other'>('idea')
 
   const handleSend = async () => {
@@ -15,10 +16,10 @@ export default function FeedbackButton() {
       await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message: feedback }),
+        body: JSON.stringify({ type, message: feedback, name: name || 'anonymous' }),
       })
       setSent(true)
-      setTimeout(() => { setSent(false); setFeedback(''); setOpen(false) }, 2000)
+      setTimeout(() => { setSent(false); setFeedback(''); setName(''); setOpen(false) }, 2000)
     } catch (e) {
       console.error(e)
     } finally {
@@ -50,13 +51,26 @@ export default function FeedbackButton() {
             ))}
           </div>
 
-          <textarea
-            value={feedback}
-            onChange={e => setFeedback(e.target.value)}
-            placeholder="what's on your mind?"
-            rows={4}
-            style={{width:'100%',fontFamily:'DM Mono,monospace',fontSize:'11px',background:'#080809',border:`.5px solid ${feedback?'rgba(124,111,247,.4)':'rgba(255,255,255,.1)'}`,color:'#ededf0',padding:'.65rem .85rem',borderRadius:'7px',outline:'none',resize:'none',marginBottom:'1rem'}}
-          />
+          <div style={{marginBottom:'.75rem'}}>
+            <label style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',letterSpacing:'.08em',display:'block',marginBottom:'.4rem'}}>your name (optional)</label>
+            <input
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="e.g. @ritualist"
+              style={{width:'100%',fontFamily:'DM Mono,monospace',fontSize:'11px',background:'#080809',border:`.5px solid ${name?'rgba(124,111,247,.4)':'rgba(255,255,255,.1)'}`,color:'#ededf0',padding:'.55rem .85rem',borderRadius:'7px',outline:'none'}}
+            />
+          </div>
+
+          <div style={{marginBottom:'1rem'}}>
+            <label style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.35)',letterSpacing:'.08em',display:'block',marginBottom:'.4rem'}}>message *</label>
+            <textarea
+              value={feedback}
+              onChange={e => setFeedback(e.target.value)}
+              placeholder="what's on your mind?"
+              rows={4}
+              style={{width:'100%',fontFamily:'DM Mono,monospace',fontSize:'11px',background:'#080809',border:`.5px solid ${feedback?'rgba(124,111,247,.4)':'rgba(255,255,255,.1)'}`,color:'#ededf0',padding:'.65rem .85rem',borderRadius:'7px',outline:'none',resize:'none'}}
+            />
+          </div>
 
           {sent ? (
             <div style={{textAlign:'center',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#4ade80',padding:'.5rem'}}>
