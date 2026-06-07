@@ -46,7 +46,7 @@ function ShareModal({ collection, slug, artworkUrl, onClose }: { collection: any
         <div style={{background:'#080809',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'8px',padding:'.75rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.5)',lineHeight:1.8}}>
           Just minted from <span style={{color:'#ededf0',fontWeight:600}}>{collection.name}</span> on Sigil! 🔮<br/>
           First NFT launchpad on Ritual Chain testnet.<br/>
-          <span style={{color:'#7c6ff7'}}>sigil.best/collection/{slug.slice(0,12)}...</span>
+          <span style={{color:'#7c6ff7'}}>sigil.best/collection/{slug.slice(0,20)}...</span>
         </div>
         <div style={{display:'flex',gap:'.75rem',marginBottom:'1rem'}}>
           <a href={twitterUrl} target="_blank" style={{flex:1,fontFamily:'DM Mono,monospace',fontSize:'12px',color:'#080809',background:'#ededf0',border:'none',padding:'.65rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em',textAlign:'center',display:'block',fontWeight:700}}>
@@ -55,7 +55,7 @@ function ShareModal({ collection, slug, artworkUrl, onClose }: { collection: any
         </div>
         <div style={{display:'flex',gap:'.5rem'}}>
           <div style={{flex:1,background:'#080809',border:'.5px solid rgba(255,255,255,.08)',borderRadius:'6px',padding:'.5rem .75rem',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.3)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-            sigil.best/collection/{slug.slice(0,16)}...
+            {pageUrl}
           </div>
           <button onClick={()=>{navigator.clipboard.writeText(pageUrl);setCopied(true);setTimeout(()=>setCopied(false),2000)}} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:copied?'#4ade80':'rgba(255,255,255,.5)',background:'rgba(255,255,255,.05)',border:`.5px solid ${copied?'rgba(74,222,128,.3)':'rgba(255,255,255,.1)'}`,padding:'.5rem .85rem',borderRadius:'6px',cursor:'pointer',whiteSpace:'nowrap'}}>
             {copied?'copied!':'copy link'}
@@ -88,7 +88,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
         const { data } = await supabase
           .from('collections')
           .select('*')
-          .eq('tx_hash', slug)
+          .or(`tx_hash.eq.${slug},slug.eq.${slug}`)
           .single()
         setDbCollection(data)
         setLoading(false)
@@ -100,7 +100,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   }, [slug])
 
   const collection = staticCollection || (dbCollection ? {
-    slug: dbCollection.tx_hash || dbCollection.id,
+    slug: dbCollection.slug || dbCollection.tx_hash || dbCollection.id,
     name: dbCollection.name,
     symbol: dbCollection.symbol,
     creator: dbCollection.creator_address ? dbCollection.creator_address.slice(0,6)+'...'+dbCollection.creator_address.slice(-4) : '@unknown',
@@ -156,6 +156,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   const isLive = mintOpen === true
   const creatorAddress = (collection as any).creatorFull || ''
   const artworkUrl = (collection as any).artworkUrl || ''
+  const displaySlug = (collection as any).slug || slug
 
   const handleMint = () => {
     if (!isConnected) { connect({ connector: injected() }); return }
@@ -176,7 +177,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
 
   return (
     <div>
-      {showShare && <ShareModal collection={collection} slug={slug} artworkUrl={artworkUrl} onClose={()=>setShowShare(false)} />}
+      {showShare && <ShareModal collection={collection} slug={displaySlug} artworkUrl={artworkUrl} onClose={()=>setShowShare(false)} />}
       <div style={{display:'flex',alignItems:'center',gap:'.5rem',padding:'.65rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.05)',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.25)'}}>
         <a href="/" style={{color:'rgba(255,255,255,.25)',textDecoration:'none'}}>explore</a>
         <span>›</span>

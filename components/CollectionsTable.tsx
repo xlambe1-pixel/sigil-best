@@ -38,7 +38,7 @@ export default function CollectionsTable() {
     chg: 0,
     vol: 0,
     listed: 0,
-    slug: c.tx_hash || c.id,
+    slug: c.slug || c.tx_hash || c.id,
     artworkUrl: c.artwork_url || '',
     isNew: true,
   }))
