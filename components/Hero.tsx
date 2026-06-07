@@ -1,8 +1,50 @@
+'use client'
 import Link from 'next/link'
-import { collections } from '@/lib/collections'
+import { collections as staticCollections } from '@/lib/collections'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export default function Hero() {
-  const featured = collections.slice(0, 3)
+  const [dbCollections, setDbCollections] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from('collections')
+        .select('*')
+        .not('artwork_url', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(3)
+      if (data) setDbCollections(data)
+    }
+    fetch()
+  }, [])
+
+  const dbFeatured = dbCollections.map(c => ({
+    name: c.name,
+    status: c.status || 'live',
+    price: c.price,
+    supply: c.supply,
+    slug: c.tx_hash || c.id,
+    bg: '#0c0818',
+    accent: '#5b21b6',
+    artworkUrl: c.artwork_url || '',
+  }))
+
+  const staticFeatured = staticCollections.slice(0, 3).map(c => ({
+    name: c.name,
+    status: c.status,
+    price: c.price,
+    supply: c.supply,
+    slug: c.slug,
+    bg: c.bg,
+    accent: c.accent,
+    artworkUrl: c.artworkUrl || '',
+  }))
+
+  const featured = dbFeatured.length > 0
+    ? [...dbFeatured.slice(0, 1), ...staticFeatured.slice(0, 2)]
+    : staticFeatured
 
   return (
     <div style={{padding:'1rem 1.25rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
