@@ -1,3 +1,4 @@
+cat > components/UpcomingSection.tsx << 'EOF'
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -50,7 +51,7 @@ function WhitelistChecker({ contractAddress }: { contractAddress: string }) {
           method: 'eth_call',
           params: [{
             to: contractAddress,
-            data: '0x' + 'e7f43c68' + address.slice(2).padStart(64, '0'),
+            data: '0xe7f43c68' + address.slice(2).padStart(64, '0'),
           }, 'latest'],
           id: 1,
         }),
@@ -97,8 +98,7 @@ export default function UpcomingSection() {
       const { data } = await supabase
         .from('collections')
         .select('*')
-        .not('mint_date', 'is', null)
-        .gt('mint_date', new Date().toISOString())
+        .eq('status', 'upcoming')
         .order('mint_date', { ascending: true })
       setCollections(data || [])
       setLoading(false)
@@ -129,10 +129,12 @@ export default function UpcomingSection() {
               <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.3)',marginBottom:'.75rem'}}>
                 {c.supply?.toLocaleString()} items · {c.price} RITUAL
               </div>
-              <div style={{marginBottom:'.75rem'}}>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.25)',letterSpacing:'.08em',marginBottom:'.4rem',textAlign:'center'}}>mint starts in</div>
-                <Countdown mintDate={c.mint_date} />
-              </div>
+              {c.mint_date && (
+                <div style={{marginBottom:'.75rem'}}>
+                  <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.25)',letterSpacing:'.08em',marginBottom:'.4rem',textAlign:'center'}}>mint starts in</div>
+                  <Countdown mintDate={c.mint_date} />
+                </div>
+              )}
               {c.contract_address && c.contract_address !== '0x0000000000000000000000000000000000000000' && (
                 <WhitelistChecker contractAddress={c.contract_address} />
               )}
@@ -143,3 +145,4 @@ export default function UpcomingSection() {
     </div>
   )
 }
+EOF
