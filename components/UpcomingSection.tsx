@@ -1,4 +1,3 @@
-cat > components/UpcomingSection.tsx << 'EOF'
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -94,7 +93,7 @@ export default function UpcomingSection() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchUpcoming = async () => {
       const { data } = await supabase
         .from('collections')
         .select('*')
@@ -103,7 +102,7 @@ export default function UpcomingSection() {
       setCollections(data || [])
       setLoading(false)
     }
-    fetch()
+    fetchUpcoming()
   }, [])
 
   if (loading || collections.length === 0) return null
@@ -145,4 +144,3 @@ export default function UpcomingSection() {
     </div>
   )
 }
-EOF
