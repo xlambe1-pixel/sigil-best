@@ -29,22 +29,8 @@ export default function CollectionsTable() {
     fetchCollections()
   }, [])
 
-  const staticFormatted = staticCollections.map((c, i) => ({
-    rank: i + 1,
-    name: c.name,
-    type: c.type,
-    floor: c.floor,
-    offer: c.floor * 0.9,
-    chg: c.chg,
-    vol: c.volume,
-    listed: c.listed,
-    slug: c.slug,
-    artworkUrl: c.artworkUrl || '',
-    isNew: false,
-  }))
-
   const dbFormatted = dbCollections.map((c, i) => ({
-    rank: staticCollections.length + i + 1,
+    rank: i + 1,
     name: c.name,
     type: c.type || 'generative',
     floor: parseFloat(c.price) || 0,
@@ -57,7 +43,21 @@ export default function CollectionsTable() {
     isNew: true,
   }))
 
-  const allCollections = [...staticFormatted, ...dbFormatted]
+  const staticFormatted = staticCollections.map((c, i) => ({
+    rank: dbCollections.length + i + 1,
+    name: c.name,
+    type: c.type,
+    floor: c.floor,
+    offer: c.floor * 0.9,
+    chg: c.chg,
+    vol: c.volume,
+    listed: c.listed,
+    slug: c.slug,
+    artworkUrl: c.artworkUrl || '',
+    isNew: false,
+  }))
+
+  const allCollections = [...dbFormatted, ...staticFormatted]
 
   const filtered = allCollections.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase())
