@@ -33,6 +33,7 @@ export default function CollectionsTable() {
     rank: i + 1,
     name: c.name,
     type: c.type || 'generative',
+    status: c.status || 'live',
     floor: parseFloat(c.price) || 0,
     offer: (parseFloat(c.price) * 0.9) || 0,
     chg: 0,
@@ -47,6 +48,7 @@ export default function CollectionsTable() {
     rank: dbCollections.length + i + 1,
     name: c.name,
     type: c.type,
+    status: c.status === 'soon' ? 'upcoming' : c.status,
     floor: c.floor,
     offer: c.floor * 0.9,
     chg: c.chg,
@@ -62,7 +64,13 @@ export default function CollectionsTable() {
   const filtered = allCollections.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase())
     const matchCategory = activeCategory === 'all' || activeCategory === 'live' || c.type === activeCategory
-    return matchSearch && matchCategory
+
+    let matchTab = true
+    if (activeTab === 'live mints') matchTab = c.status === 'live'
+    if (activeTab === 'upcoming') matchTab = c.status === 'upcoming' || c.status === 'soon'
+    if (activeTab === 'recently ended') matchTab = c.status === 'ended'
+
+    return matchSearch && matchCategory && matchTab
   })
 
   return (
