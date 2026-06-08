@@ -1,24 +1,32 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { createPublicClient, http } from 'viem'
+
+const ritualTestnet = {
+  id: 1979,
+  name: 'Ritual Testnet',
+  nativeCurrency: { name: 'RITUAL', symbol: 'RITUAL', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.ritualfoundation.org'] } },
+} as const
+
+const publicClient = createPublicClient({
+  chain: ritualTestnet,
+  transport: http(),
+})
+
+const ABI = [
+  { name: 'totalMinted', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+] as const
 
 async function getMintedFromContract(contractAddress: string): Promise<number> {
   try {
-    const response = await fetch('https://rpc.ritualfoundation.org', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_call',
-        params: [{ to: contractAddress, data: '0x05b5d230' }, 'latest'],
-        id: 1,
-      }),
+    const result = await publicClient.readContract({
+      address: contractAddress as `0x${string}`,
+      abi: ABI,
+      functionName: 'totalMinted',
     })
-    const data = await response.json()
-    if (data.result && data.result !== '0x') {
-      return parseInt(data.result, 16)
-    }
-    return 0
+    return Number(result)
   } catch {
     return 0
   }
