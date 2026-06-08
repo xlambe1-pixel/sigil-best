@@ -4,10 +4,8 @@
 
 body {
   background: #080809;
-  background-image:
-    linear-gradient(to right, rgba(0,180,60,0.08) 0%, transparent 15%, transparent 85%, rgba(124,111,247,0.08) 100%);
   color: #ededf0;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   min-height: 100vh;
 }
 
