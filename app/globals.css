@@ -5,10 +5,7 @@
 body {
   background: #080809;
   background-image:
-    radial-gradient(ellipse at 0% 30%, rgba(0, 180, 60, 0.12) 0%, transparent 35%),
-    radial-gradient(ellipse at 100% 60%, rgba(0, 150, 50, 0.10) 0%, transparent 35%),
-    radial-gradient(ellipse at 0% 80%, rgba(124, 111, 247, 0.08) 0%, transparent 30%),
-    radial-gradient(ellipse at 100% 10%, rgba(124, 111, 247, 0.06) 0%, transparent 30%);
+    linear-gradient(to right, rgba(0,180,60,0.08) 0%, transparent 15%, transparent 85%, rgba(124,111,247,0.08) 100%);
   color: #ededf0;
   font-family: 'Syne', sans-serif;
   min-height: 100vh;
