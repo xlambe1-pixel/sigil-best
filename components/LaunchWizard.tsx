@@ -5,6 +5,7 @@ import { injected } from 'wagmi/connectors'
 import { parseEther } from 'viem'
 import { supabase } from '@/lib/supabase'
 import ArtworkUpload from './ArtworkUpload'
+import GenerativeEngine from './GenerativeEngine'
 
 const ABI = [
   {
@@ -33,6 +34,11 @@ export default function LaunchWizard() {
   const [contractAddress, setContractAddress] = useState('')
   const [artworkUrl, setArtworkUrl] = useState('')
   const [artworkHash, setArtworkHash] = useState('')
+  const [collectionType, setCollectionType] = useState<'single' | 'generative'>('single')
+  const [generatedImages, setGeneratedImages] = useState<File[]>([])
+  const [generatedMetadata, setGeneratedMetadata] = useState<any[]>([])
+  const [uploadingGenerative, setUploadingGenerative] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [form, setForm] = useState({
     name: '', symbol: '', description: '', website: '', twitter: '', discord: '',
     supply: '', price: '', maxPerWallet: '', mintDate: '', whitelist: false, type: 'generative',
@@ -45,13 +51,85 @@ export default function LaunchWizard() {
 
   const update = (k: string, v: string | boolean) => setForm(f => ({ ...f, [k]: v }))
 
+  const handleGenerativeComplete = async (images: File[], metadata: any[]) => {
+    setGeneratedImages(images)
+    setGeneratedMetadata(metadata)
+    update('supply', images.length.toString())
+  }
+
+  const uploadGenerativeToIPFS = async (): Promise<string> => {
+    setUploadingGenerative(true)
+    setUploadProgress(0)
+
+    try {
+      // Upload images to Pinata
+      const imageHashes: string[] = []
+      
+      for (let i = 0; i < generatedImages.length; i++) {
+        const formData = new FormData()
+        formData.append('file', generatedImages[i])
+        
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        const data = await res.json()
+        imageHashes.push(data.hash)
+        setUploadProgress(Math.round(((i + 1) / generatedImages.length) * 50))
+      }
+
+      // Upload metadata JSONs
+      const metadataHashes: string[] = []
+      
+      for (let i = 0; i < generatedMetadata.length; i++) {
+        const meta = {
+          ...generatedMetadata[i],
+          image: `ipfs://${imageHashes[i]}`,
+        }
+        
+        const blob = new Blob([JSON.stringify(meta)], { type: 'application/json' })
+        const file = new File([blob], `${i + 1}.json`, { type: 'application/json' })
+        const formData = new FormData()
+        formData.append('file', file)
+        
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        const data = await res.json()
+        metadataHashes.push(data.hash)
+        setUploadProgress(50 + Math.round(((i + 1) / generatedMetadata.length) * 50))
+      }
+
+      // Use first image as artwork
+      if (imageHashes.length > 0) {
+        setArtworkUrl(`https://pink-working-bobcat-939.mypinata.cloud/ipfs/${imageHashes[0]}`)
+        setArtworkHash(imageHashes[0])
+      }
+
+      setUploadingGenerative(false)
+      return metadataHashes[0] || ''
+    } catch (e) {
+      console.error(e)
+      setUploadingGenerative(false)
+      return ''
+    }
+  }
+
   const handleDeploy = async () => {
     if (!isConnected) { connect({ connector: injected() }); return }
     setDeploying(true)
     try {
+      let baseURI = artworkHash ? `ipfs://${artworkHash}/` : 'ipfs://placeholder/'
+      
+      if (collectionType === 'generative' && generatedImages.length > 0) {
+        const metaHash = await uploadGenerativeToIPFS()
+        if (metaHash) baseURI = `ipfs://${metaHash}/`
+      }
+
       const res = await fetch('/api/bytecode')
       const { bytecode } = await res.json()
-      const baseURI = artworkHash ? `ipfs://${artworkHash}/` : 'ipfs://placeholder/'
+      
       deployContract({
         abi: ABI,
         bytecode: bytecode as `0x${string}`,
@@ -167,11 +245,39 @@ export default function LaunchWizard() {
 
       {step === 1 && (
         <div>
-          <ArtworkUpload onUpload={(url, hash) => { setArtworkUrl(url); setArtworkHash(hash) }} />
+          {/* Collection type selector */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)', letterSpacing: '.08em', display: 'block', marginBottom: '.75rem' }}>artwork type</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
+              <div onClick={() => setCollectionType('single')} style={{ background: collectionType==='single'?'rgba(124,111,247,.08)':'#0f0f14', border: `.5px solid ${collectionType==='single'?'#7c6ff7':'rgba(255,255,255,.08)'}`, borderRadius: '10px', padding: '1rem', cursor: 'pointer' }}>
+                <div style={{ fontSize: '20px', marginBottom: '.5rem' }}>🖼️</div>
+                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '.25rem' }}>single artwork</div>
+                <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)' }}>one image for all NFTs</div>
+              </div>
+              <div onClick={() => setCollectionType('generative')} style={{ background: collectionType==='generative'?'rgba(124,111,247,.08)':'#0f0f14', border: `.5px solid ${collectionType==='generative'?'#7c6ff7':'rgba(255,255,255,.08)'}`, borderRadius: '10px', padding: '1rem', cursor: 'pointer' }}>
+                <div style={{ fontSize: '20px', marginBottom: '.5rem' }}>🎨</div>
+                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '.25rem' }}>generative art</div>
+                <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '10px', color: 'rgba(255,255,255,.35)' }}>unique NFTs from layers</div>
+              </div>
+            </div>
+          </div>
+
+          {collectionType === 'single' ? (
+            <ArtworkUpload onUpload={(url, hash) => { setArtworkUrl(url); setArtworkHash(hash) }} />
+          ) : (
+            <GenerativeEngine onGenerated={handleGenerativeComplete} />
+          )}
+
+          {collectionType === 'generative' && generatedImages.length > 0 && (
+            <div style={{ marginTop: '1rem', background: 'rgba(74,222,128,.08)', border: '.5px solid rgba(74,222,128,.2)', borderRadius: '8px', padding: '.75rem 1rem', fontFamily: 'DM Mono,monospace', fontSize: '11px', color: '#4ade80' }}>
+              ✓ {generatedImages.length} NFTs generated! Images will be uploaded to IPFS when you deploy.
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: '.75rem', marginTop: '1rem' }}>
             <button onClick={() => setStep(0)} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: 'pointer' }}>← back</button>
             <button onClick={() => setStep(2)} style={{ background: '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Inter,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: 'pointer', letterSpacing: '.04em' }}>
-              {artworkUrl ? 'continue →' : 'skip for now →'}
+              {artworkUrl || generatedImages.length > 0 ? 'continue →' : 'skip for now →'}
             </button>
           </div>
         </div>
@@ -226,22 +332,36 @@ export default function LaunchWizard() {
                   { label: 'slug', val: `sigil.best/collection/${generateSlug(form.name)}` },
                   { label: 'symbol', val: form.symbol },
                   { label: 'type', val: form.type },
+                  { label: 'artwork', val: collectionType === 'generative' ? `🎨 ${generatedImages.length} generative NFTs` : artworkUrl ? '✓ uploaded to ipfs' : '— no artwork' },
                   { label: 'supply', val: form.supply + ' items' },
                   { label: 'mint price', val: form.price + ' RITUAL' },
                   { label: 'max per wallet', val: form.maxPerWallet || 'unlimited' },
                   { label: 'whitelist', val: form.whitelist ? 'enabled' : 'disabled' },
-                  { label: 'artwork', val: artworkUrl ? '✓ uploaded to ipfs' : '— no artwork' },
                   { label: 'network', val: 'ritual testnet · chain id 1979' },
                 ].map(r => (
                   <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '.5rem 0', borderBottom: '.5px solid rgba(255,255,255,.04)' }}>
                     <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: 'rgba(255,255,255,.3)', letterSpacing: '.05em' }}>{r.label}</div>
-                    <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: r.label==='artwork'&&artworkUrl?'#4ade80':r.label==='slug'?'#7c6ff7':'#ededf0' }}>{r.val}</div>
+                    <div style={{ fontFamily: 'DM Mono,monospace', fontSize: '11px', color: r.label==='slug'?'#7c6ff7':r.label==='artwork'&&(artworkUrl||generatedImages.length>0)?'#4ade80':'#ededf0' }}>{r.val}</div>
                   </div>
                 ))}
               </div>
+
+              {uploadingGenerative && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'DM Mono,monospace', fontSize: '11px', color: 'rgba(255,255,255,.35)', marginBottom: '.5rem' }}>
+                    <span>uploading to IPFS...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', background: '#7c6ff7', width: `${uploadProgress}%`, transition: 'width .3s' }} />
+                  </div>
+                </div>
+              )}
+
               <div style={{ background: 'rgba(124,111,247,.06)', border: '.5px solid rgba(124,111,247,.2)', borderRadius: '8px', padding: '.85rem 1rem', marginBottom: '1.5rem', fontFamily: 'DM Mono,monospace', fontSize: '11px', color: 'rgba(124,111,247,.8)', lineHeight: 1.8 }}>
-                {deploying ? '⏳ waiting for transaction confirmation...' : 'deploying will create a smart contract on ritual testnet. make sure your wallet is connected and has enough RITUAL for gas (~0.01 RITUAL).'}
+                {deploying ? '⏳ waiting for transaction confirmation...' : collectionType === 'generative' && generatedImages.length > 0 ? '🎨 generative NFTs will be uploaded to IPFS before deployment.' : 'deploying will create a smart contract on ritual testnet.'}
               </div>
+
               <div style={{ display: 'flex', gap: '.75rem' }}>
                 <button onClick={() => setStep(2)} disabled={deploying} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: deploying ? 'not-allowed' : 'pointer' }}>← back</button>
                 <button onClick={handleDeploy} disabled={deploying} style={{ background: deploying ? 'rgba(124,111,247,.5)' : '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Inter,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 2rem', borderRadius: '7px', cursor: deploying ? 'not-allowed' : 'pointer', letterSpacing: '.04em' }}>
