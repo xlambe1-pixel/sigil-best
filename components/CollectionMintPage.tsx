@@ -61,11 +61,6 @@ function ShareModal({ collection, slug, artworkUrl, onClose }: { collection: any
             {copied?'copied!':'copy link'}
           </button>
         </div>
-        {artworkUrl && (
-          <div style={{marginTop:'.75rem',fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)',textAlign:'center'}}>
-            tip: right-click the image above to save it for your tweet 📸
-          </div>
-        )}
       </div>
     </div>
   )
@@ -176,7 +171,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
   }
 
   return (
-    <div>
+    <div style={{maxWidth:'1100px',margin:'0 auto'}}>
       {showShare && <ShareModal collection={collection} slug={displaySlug} artworkUrl={artworkUrl} onClose={()=>setShowShare(false)} />}
       <div style={{display:'flex',alignItems:'center',gap:'.5rem',padding:'.65rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.05)',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.25)'}}>
         <a href="/" style={{color:'rgba(255,255,255,.25)',textDecoration:'none'}}>explore</a>
