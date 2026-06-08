@@ -112,7 +112,7 @@ export default function UpcomingSection() {
       <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.12em',marginBottom:'1rem'}}>// upcoming mints</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:'10px'}}>
         {collections.map((c) => (
-          <div key={c.id} style={{background:'#0f0f14',border:'.5px solid rgba(124,111,247,.15)',borderRadius:'12px',overflow:'hidden'}}>
+          <a key={c.id} href={`/collection/${c.slug || c.tx_hash || c.id}`} style={{textDecoration:'none',color:'inherit',display:'block',background:'#0f0f14',border:'.5px solid rgba(124,111,247,.15)',borderRadius:'12px',overflow:'hidden'}}>
             <div style={{height:'140px',position:'relative',overflow:'hidden',background:'#0c0818'}}>
               {c.artwork_url ? (
                 <img src={c.artwork_url} alt={c.name} style={{width:'100%',height:'100%',objectFit:'cover',opacity:0.8}} />
@@ -138,7 +138,7 @@ export default function UpcomingSection() {
                 <WhitelistChecker contractAddress={c.contract_address} />
               )}
             </div>
-          </div>
+          </a>
         ))}
       </div>
     </div>
