@@ -2,20 +2,61 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
+async function getMintedFromContract(contractAddress: string): Promise<number> {
+  try {
+    const response = await fetch('https://rpc.ritualfoundation.org', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'eth_call',
+        params: [{ to: contractAddress, data: '0x6be10d8c' }, 'latest'],
+        id: 1,
+      }),
+    })
+    const data = await response.json()
+    if (data.result && data.result !== '0x') {
+      return parseInt(data.result, 16)
+    }
+    return 0
+  } catch {
+    return 0
+  }
+}
+
 export default function StatsPage() {
   const [collections, setCollections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [totalMinted, setTotalMinted] = useState(0)
+  const [totalVolume, setTotalVolume] = useState(0)
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       const { data } = await supabase
         .from('collections')
         .select('*')
         .order('created_at', { ascending: false })
-      setCollections(data || [])
+      
+      const cols = data || []
+      setCollections(cols)
+
+      // Fetch real minted counts from blockchain
+      let minted = 0
+      let volume = 0
+      
+      for (const c of cols) {
+        if (c.contract_address && c.contract_address !== '0x0000000000000000000000000000000000000000') {
+          const count = await getMintedFromContract(c.contract_address)
+          minted += count
+          volume += count * parseFloat(c.price || '0')
+        }
+      }
+      
+      setTotalMinted(minted)
+      setTotalVolume(volume)
       setLoading(false)
     }
-    fetch()
+    fetchData()
   }, [])
 
   const totalSupply = collections.reduce((a,c) => a + (c.supply||0), 0)
@@ -33,32 +74,27 @@ export default function StatsPage() {
 
   return (
     <div style={{maxWidth:'1100px',margin:'0 auto',padding:'2.5rem 1.75rem'}}>
-
-      {/* Header */}
       <div style={{marginBottom:'2rem'}}>
         <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.12em',marginBottom:'.75rem'}}>// platform stats</div>
         <h1 style={{fontSize:'28px',fontWeight:800,letterSpacing:'-.02em'}}>sigil statistics</h1>
       </div>
 
-      {/* Global stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'10px',marginBottom:'2.5rem'}}>
         {[
           {label:'total collections', val:totalCollections.toString(), sub:'on ritual testnet'},
-          {label:'total supply', val:totalSupply.toLocaleString(), sub:'nfts available'},
+          {label:'total minted', val:loading?'..':totalMinted.toLocaleString(), sub:'nfts on-chain'},
+          {label:'total volume', val:loading?'..':totalVolume.toFixed(2)+' RITUAL', sub:'all time'},
           {label:'unique creators', val:totalCreators.toString(), sub:'launched on sigil'},
-          {label:'network', val:'1979', sub:'ritual chain id'},
         ].map(s => (
           <div key={s.label} style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'10px',padding:'1.25rem'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.25)',letterSpacing:'.08em',marginBottom:'.5rem'}}>{s.label}</div>
-            <div style={{fontSize:'28px',fontWeight:800,color:'#ededf0',lineHeight:1,marginBottom:'.25rem'}}>{loading?'—':s.val}</div>
+            <div style={{fontSize:'28px',fontWeight:800,color:'#ededf0',lineHeight:1,marginBottom:'.25rem'}}>{loading&&s.label!=='total collections'&&s.label!=='unique creators'?'—':s.val}</div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.2)'}}>{s.sub}</div>
           </div>
         ))}
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1.5rem',marginBottom:'2.5rem'}}>
-
-        {/* Top Creators */}
         <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',overflow:'hidden'}}>
           <div style={{padding:'1rem 1.25rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.28)',letterSpacing:'.1em'}}>// top creators</div>
@@ -87,7 +123,6 @@ export default function StatsPage() {
           ))}
         </div>
 
-        {/* Recent Launches */}
         <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',overflow:'hidden'}}>
           <div style={{padding:'1rem 1.25rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.28)',letterSpacing:'.1em'}}>// recent launches</div>
@@ -97,11 +132,17 @@ export default function StatsPage() {
           ) : recentCollections.length === 0 ? (
             <div style={{padding:'2rem',textAlign:'center',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.25)'}}>no launches yet</div>
           ) : recentCollections.map((c,i) => (
-            <a key={c.id} href={`/collection/${c.tx_hash||c.id}`} style={{textDecoration:'none',color:'inherit',display:'block'}}>
+            <a key={c.id} href={`/collection/${c.slug||c.tx_hash||c.id}`} style={{textDecoration:'none',color:'inherit',display:'block'}}>
               <div style={{display:'flex',alignItems:'center',gap:'.75rem',padding:'.75rem 1.25rem',borderBottom:'.5px solid rgba(255,255,255,.04)'}}>
                 <div style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.2)',width:'1rem'}}>{i+1}</div>
-                <div style={{width:'30px',height:'30px',borderRadius:'6px',background:'#0c0818',border:'.5px solid rgba(255,255,255,.07)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',fontFamily:'DM Mono,monospace',color:'rgba(124,111,247,.6)',flexShrink:0}}>
-                  {c.symbol?.slice(0,3)}
+                <div style={{width:'30px',height:'30px',borderRadius:'6px',overflow:'hidden',background:'#0c0818',border:'.5px solid rgba(255,255,255,.07)',flexShrink:0}}>
+                  {c.artwork_url ? (
+                    <img src={c.artwork_url} alt={c.name} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                  ) : (
+                    <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',fontFamily:'DM Mono,monospace',color:'rgba(124,111,247,.6)'}}>
+                      {c.symbol?.slice(0,3)}
+                    </div>
+                  )}
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:'12px',fontWeight:600,color:'#ededf0'}}>{c.name}</div>
@@ -117,7 +158,6 @@ export default function StatsPage() {
         </div>
       </div>
 
-      {/* Chain info */}
       <div style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',padding:'1.25rem'}}>
         <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.28)',letterSpacing:'.1em',marginBottom:'1rem'}}>// ritual chain info</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'1rem'}}>
@@ -134,7 +174,6 @@ export default function StatsPage() {
           ))}
         </div>
       </div>
-
     </div>
   )
 }
