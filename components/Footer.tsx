@@ -21,6 +21,11 @@ export default function Footer() {
                 ritual · 1979
               </div>
             </div>
+            <div style={{marginTop:'1rem'}}>
+              <a href="https://x.com/sigilbest" target="_blank" style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:'rgba(255,255,255,.4)',textDecoration:'none',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.08)',padding:'.3rem .75rem',borderRadius:'6px',display:'inline-flex',alignItems:'center',gap:'.4rem'}}>
+                𝕏 @sigilbest
+              </a>
+            </div>
           </div>
 
           <div>
