@@ -1,5 +1,6 @@
-import { createConfig, http } from 'wagmi'
+import { createConfig, http, createStorage, cookieStorage } from 'wagmi'
 import { defineChain } from 'viem'
+import { injected } from 'wagmi/connectors'
 
 export const ritualTestnet = defineChain({
   id: 1979,
@@ -25,7 +26,10 @@ export const ritualTestnet = defineChain({
 
 export const config = createConfig({
   chains: [ritualTestnet],
+  connectors: [injected()],
+  storage: createStorage({ storage: cookieStorage }),
   transports: {
     [ritualTestnet.id]: http(),
   },
+  ssr: true,
 })
