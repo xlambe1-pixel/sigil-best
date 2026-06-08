@@ -10,7 +10,7 @@ async function getMintedFromContract(contractAddress: string): Promise<number> {
       body: JSON.stringify({
         jsonrpc: '2.0',
         method: 'eth_call',
-        params: [{ to: contractAddress, data: '0x2182570d' }, 'latest'],
+        params: [{ to: contractAddress, data: '0x05b5d230' }, 'latest'],
         id: 1,
       }),
     })
@@ -58,7 +58,6 @@ export default function StatsPage() {
     fetchData()
   }, [])
 
-  const totalSupply = collections.reduce((a,c) => a + (c.supply||0), 0)
   const totalCollections = collections.length
   const creators = [...new Set(collections.map(c => c.creator_address))].filter(Boolean)
   const totalCreators = creators.length
@@ -81,8 +80,8 @@ export default function StatsPage() {
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'10px',marginBottom:'2.5rem'}}>
         {[
           {label:'total collections', val:totalCollections.toString(), sub:'on ritual testnet'},
-          {label:'total minted', val:loading?'..':totalMinted.toLocaleString(), sub:'nfts on-chain'},
-          {label:'total volume', val:loading?'..':totalVolume.toFixed(4)+' RITUAL', sub:'all time'},
+          {label:'total minted', val:loading?'...':totalMinted.toLocaleString(), sub:'nfts on-chain'},
+          {label:'total volume', val:loading?'...':totalVolume.toFixed(4)+' RITUAL', sub:'all time'},
           {label:'unique creators', val:totalCreators.toString(), sub:'launched on sigil'},
         ].map(s => (
           <div key={s.label} style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'10px',padding:'1.25rem'}}>
