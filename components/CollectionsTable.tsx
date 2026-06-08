@@ -66,7 +66,7 @@ export default function CollectionsTable() {
   })
 
   return (
-    <div>
+    <div style={{maxWidth:'1100px',margin:'0 auto'}}>
       <div style={{display:'flex',padding:'0 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
         {tabs.map((t) => (
           <div key={t} onClick={()=>setActiveTab(t)} style={{fontFamily:'DM Mono,monospace',fontSize:'11px',color:activeTab===t?'#ededf0':'rgba(255,255,255,.3)',padding:'.6rem 1rem',borderBottom:activeTab===t?'1.5px solid #7c6ff7':'1.5px solid transparent',cursor:'pointer',letterSpacing:'.04em'}}>
