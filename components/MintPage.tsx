@@ -235,7 +235,7 @@ export default function MintPage() {
             <button
               onClick={handleMint}
               disabled={isPending}
-              style={{width:'100%',background:isPending?'rgba(124,111,247,.5)':'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'14px',padding:'.75rem',borderRadius:'8px',cursor:isPending?'not-allowed':'pointer',letterSpacing:'.04em',marginBottom:'.65rem'}}>
+              style={{width:'100%',background:isPending?'rgba(124,111,247,.5)':'#7c6ff7',border:'none',color:'#080809',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:'14px',padding:'.75rem',borderRadius:'8px',cursor:isPending?'not-allowed':'pointer',letterSpacing:'.04em',marginBottom:'.65rem'}}>
               {isPending ? 'confirming...' : isConnected ? 'mint now' : 'connect wallet to mint'}
             </button>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)',textAlign:'center',letterSpacing:'.03em',lineHeight:1.7}}>

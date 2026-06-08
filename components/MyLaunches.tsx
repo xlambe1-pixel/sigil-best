@@ -87,7 +87,7 @@ export default function MyLaunches() {
           <div style={{fontSize:'32px',marginBottom:'1rem',opacity:.3}}>◈</div>
           <div style={{fontSize:'16px',fontWeight:600,marginBottom:'.5rem'}}>connect your wallet</div>
           <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.3)',marginBottom:'1.5rem'}}>to view your launched collections</div>
-          <button onClick={()=>connect({connector:injected()})} style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer'}}>connect wallet</button>
+          <button onClick={()=>connect({connector:injected()})} style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer'}}>connect wallet</button>
         </div>
       ) : loading ? (
         <div style={{textAlign:'center',padding:'5rem 2rem',fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.25)'}}>loading...</div>
@@ -96,7 +96,7 @@ export default function MyLaunches() {
           <div style={{fontSize:'32px',marginBottom:'1rem',opacity:.3}}>◈</div>
           <div style={{fontSize:'16px',fontWeight:600,marginBottom:'.5rem'}}>no collections yet</div>
           <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.3)',marginBottom:'1.5rem'}}>launch your first nft collection on ritual testnet</div>
-          <a href="/launch" style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>launch collection</a>
+          <a href="/launch" style={{background:'#7c6ff7',border:'none',color:'#080809',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:'13px',padding:'.7rem 1.75rem',borderRadius:'7px',cursor:'pointer',textDecoration:'none',letterSpacing:'.04em'}}>launch collection</a>
         </div>
       ) : (
         <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>

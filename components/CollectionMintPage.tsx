@@ -269,7 +269,7 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
               </div>
             )}
             {error && <div style={{background:'rgba(248,113,113,.08)',border:'.5px solid rgba(248,113,113,.2)',borderRadius:'7px',padding:'.65rem .85rem',marginBottom:'1rem',fontFamily:'DM Mono,monospace',fontSize:'11px',color:'#f87171'}}>✗ {error.message.slice(0,80)}...</div>}
-            <button onClick={handleMint} disabled={isPending||!isLive||!isRealContract} style={{width:'100%',background:isPending||!isLive||!isRealContract?'rgba(124,111,247,.4)':'#7c6ff7',border:'none',color:'#080809',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'14px',padding:'.75rem',borderRadius:'8px',cursor:isPending||!isLive||!isRealContract?'not-allowed':'pointer',letterSpacing:'.04em',marginBottom:'.65rem'}}>
+            <button onClick={handleMint} disabled={isPending||!isLive||!isRealContract} style={{width:'100%',background:isPending||!isLive||!isRealContract?'rgba(124,111,247,.4)':'#7c6ff7',border:'none',color:'#080809',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:'14px',padding:'.75rem',borderRadius:'8px',cursor:isPending||!isLive||!isRealContract?'not-allowed':'pointer',letterSpacing:'.04em',marginBottom:'.65rem'}}>
               {isPending?'confirming...':!isRealContract?'no contract':!isLive?'mint paused':isConnected?'mint now':'connect wallet to mint'}
             </button>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.2)',textAlign:'center',letterSpacing:'.03em',lineHeight:1.7}}>gas fees estimated ~0.001 RITUAL · ritual testnet</div>

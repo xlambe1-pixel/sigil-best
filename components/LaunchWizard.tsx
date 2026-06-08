@@ -159,7 +159,7 @@ export default function LaunchWizard() {
               </div>
             ))}
           </div>
-          <button onClick={() => form.name && form.symbol && form.description && setStep(1)} style={{ background: form.name && form.symbol && form.description ? '#7c6ff7' : 'rgba(255,255,255,.06)', border: 'none', color: form.name && form.symbol && form.description ? '#080809' : 'rgba(255,255,255,.25)', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: form.name && form.symbol && form.description ? 'pointer' : 'not-allowed', letterSpacing: '.04em' }}>
+          <button onClick={() => form.name && form.symbol && form.description && setStep(1)} style={{ background: form.name && form.symbol && form.description ? '#7c6ff7' : 'rgba(255,255,255,.06)', border: 'none', color: form.name && form.symbol && form.description ? '#080809' : 'rgba(255,255,255,.25)', fontFamily: 'Inter,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: form.name && form.symbol && form.description ? 'pointer' : 'not-allowed', letterSpacing: '.04em' }}>
             continue →
           </button>
         </div>
@@ -170,7 +170,7 @@ export default function LaunchWizard() {
           <ArtworkUpload onUpload={(url, hash) => { setArtworkUrl(url); setArtworkHash(hash) }} />
           <div style={{ display: 'flex', gap: '.75rem', marginTop: '1rem' }}>
             <button onClick={() => setStep(0)} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: 'pointer' }}>← back</button>
-            <button onClick={() => setStep(2)} style={{ background: '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: 'pointer', letterSpacing: '.04em' }}>
+            <button onClick={() => setStep(2)} style={{ background: '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Inter,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: 'pointer', letterSpacing: '.04em' }}>
               {artworkUrl ? 'continue →' : 'skip for now →'}
             </button>
           </div>
@@ -208,7 +208,7 @@ export default function LaunchWizard() {
           </div>
           <div style={{ display: 'flex', gap: '.75rem' }}>
             <button onClick={() => setStep(1)} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: 'pointer' }}>← back</button>
-            <button onClick={() => form.supply && form.price && setStep(3)} style={{ background: form.supply && form.price ? '#7c6ff7' : 'rgba(255,255,255,.06)', border: 'none', color: form.supply && form.price ? '#080809' : 'rgba(255,255,255,.25)', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: form.supply && form.price ? 'pointer' : 'not-allowed', letterSpacing: '.04em' }}>
+            <button onClick={() => form.supply && form.price && setStep(3)} style={{ background: form.supply && form.price ? '#7c6ff7' : 'rgba(255,255,255,.06)', border: 'none', color: form.supply && form.price ? '#080809' : 'rgba(255,255,255,.25)', fontFamily: 'Inter,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 1.75rem', borderRadius: '7px', cursor: form.supply && form.price ? 'pointer' : 'not-allowed', letterSpacing: '.04em' }}>
               continue →
             </button>
           </div>
@@ -244,7 +244,7 @@ export default function LaunchWizard() {
               </div>
               <div style={{ display: 'flex', gap: '.75rem' }}>
                 <button onClick={() => setStep(2)} disabled={deploying} style={{ background: 'transparent', border: '.5px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.4)', fontFamily: 'DM Mono,monospace', fontSize: '12px', padding: '.7rem 1.25rem', borderRadius: '7px', cursor: deploying ? 'not-allowed' : 'pointer' }}>← back</button>
-                <button onClick={handleDeploy} disabled={deploying} style={{ background: deploying ? 'rgba(124,111,247,.5)' : '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 2rem', borderRadius: '7px', cursor: deploying ? 'not-allowed' : 'pointer', letterSpacing: '.04em' }}>
+                <button onClick={handleDeploy} disabled={deploying} style={{ background: deploying ? 'rgba(124,111,247,.5)' : '#7c6ff7', border: 'none', color: '#080809', fontFamily: 'Inter,sans-serif', fontWeight: 700, fontSize: '13px', padding: '.7rem 2rem', borderRadius: '7px', cursor: deploying ? 'not-allowed' : 'pointer', letterSpacing: '.04em' }}>
                   {deploying ? 'deploying...' : '🔮 deploy collection'}
                 </button>
               </div>
