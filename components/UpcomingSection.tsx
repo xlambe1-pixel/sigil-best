@@ -108,7 +108,7 @@ export default function UpcomingSection() {
   if (loading || collections.length === 0) return null
 
   return (
-    <div style={{padding:'1rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
+    <div style={{maxWidth:'1100px',margin:'0 auto',padding:'1rem 1.75rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
       <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.12em',marginBottom:'1rem'}}>// upcoming mints</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:'10px'}}>
         {collections.map((c) => (
