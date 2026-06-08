@@ -178,9 +178,9 @@ export default function CollectionMintPage({ slug }: { slug: string }) {
         <span>›</span>
         <span style={{color:'rgba(255,255,255,.5)'}}>{collection.name}</span>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 360px',minHeight:'600px'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr minmax(280px,360px)',minHeight:'600px'}}>
         <div style={{padding:'2rem 1.75rem',borderRight:'.5px solid rgba(255,255,255,.06)'}}>
-          <div style={{borderRadius:'12px',overflow:'hidden',marginBottom:'1.5rem',position:'relative',height:'340px',background:collection.bg}}>
+          <div style={{borderRadius:'12px',overflow:'hidden',marginBottom:'1.5rem',position:'relative',height:'clamp(220px,35vw,400px)',background:collection.bg}}>
             {artworkUrl ? (
               <img src={artworkUrl} alt={collection.name} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
             ) : (
