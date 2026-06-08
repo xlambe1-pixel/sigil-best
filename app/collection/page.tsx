@@ -6,12 +6,14 @@ import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
-    <main style={{minHeight:'100vh',background:'#080809',color:'#ededf0',maxWidth:'1400px',margin:'0 auto'}}>
+    <div style={{background:'#080809',minHeight:'100vh',color:'#ededf0'}}>
       <Navbar />
-      <UpcomingSection />
-      <Hero />
-      <CollectionsTable />
-      <Footer />
-    </main>
+      <div style={{maxWidth:'1100px',margin:'0 auto',borderLeft:'.5px solid rgba(255,255,255,.06)',borderRight:'.5px solid rgba(255,255,255,.06)',minHeight:'100vh'}}>
+        <UpcomingSection />
+        <Hero />
+        <CollectionsTable />
+        <Footer />
+      </div>
+    </div>
   )
 }
