@@ -16,8 +16,8 @@ export default function Navbar() {
   const short = (addr: string) => addr.slice(0,6)+'...'+addr.slice(-4)
 
   return (
-    <nav style={{borderBottom:'.5px solid rgba(255,255,255,.07)',background:'rgba(5,8,5,0.7)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',position:'sticky',top:0,zIndex:10}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.85rem 1.25rem'}}>
+    <nav style={{borderBottom:'.5px solid rgba(255,255,255,.07)',background:'rgba(8,8,9,0.9)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',position:'sticky',top:0,zIndex:10}}>
+      <div style={{maxWidth:'1100px',margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.85rem 1.25rem'}}>
         <div style={{display:'flex',alignItems:'center',gap:'1.5rem'}}>
           <Link href="/" style={{textDecoration:'none'}}>
             <div style={{fontSize:'18px',fontWeight:800,letterSpacing:'-.02em',color:'#ededf0'}}>
@@ -57,7 +57,7 @@ export default function Navbar() {
         </div>
       </div>
       {menuOpen && (
-        <div style={{padding:'.75rem 1.25rem 1rem',borderTop:'.5px solid rgba(255,255,255,.06)',display:'flex',flexDirection:'column',gap:'.25rem',background:'rgba(5,8,5,0.9)'}}>
+        <div style={{maxWidth:'1100px',margin:'0 auto',padding:'.75rem 1.25rem 1rem',borderTop:'.5px solid rgba(255,255,255,.06)',display:'flex',flexDirection:'column',gap:'.25rem'}}>
           {[['explore','/'],['launchpad','/launch'],['trade','/trade'],['my nfts','/my-nfts'],['my launches','/my-launches'],['stats','/stats'],['faucet','/faucet']].map(([item,href]) => (
             <Link key={item} href={href} style={{textDecoration:'none'}} onClick={()=>setMenuOpen(false)}>
               <div style={{fontFamily:'DM Mono,monospace',fontSize:'12px',color:'rgba(255,255,255,.5)',padding:'.5rem .75rem',borderRadius:'5px',cursor:'pointer',letterSpacing:'.03em'}}>
