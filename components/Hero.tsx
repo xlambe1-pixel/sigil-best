@@ -48,7 +48,7 @@ export default function Hero() {
     : staticFeatured
 
   return (
-    <div style={{padding:'1rem 1.25rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
+    <div style={{maxWidth:'1100px',margin:'0 auto',padding:'1rem 1.25rem',borderBottom:'.5px solid rgba(255,255,255,.06)'}}>
       <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)',letterSpacing:'.12em',marginBottom:'.75rem'}}>
         // featured collections
       </div>
