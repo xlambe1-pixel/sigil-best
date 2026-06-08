@@ -10,7 +10,7 @@ async function getMintedFromContract(contractAddress: string): Promise<number> {
       body: JSON.stringify({
         jsonrpc: '2.0',
         method: 'eth_call',
-        params: [{ to: contractAddress, data: '0x6be10d8c' }, 'latest'],
+        params: [{ to: contractAddress, data: '0x2182570d' }, 'latest'],
         id: 1,
       }),
     })
@@ -40,7 +40,6 @@ export default function StatsPage() {
       const cols = data || []
       setCollections(cols)
 
-      // Fetch real minted counts from blockchain
       let minted = 0
       let volume = 0
       
@@ -83,12 +82,12 @@ export default function StatsPage() {
         {[
           {label:'total collections', val:totalCollections.toString(), sub:'on ritual testnet'},
           {label:'total minted', val:loading?'..':totalMinted.toLocaleString(), sub:'nfts on-chain'},
-          {label:'total volume', val:loading?'..':totalVolume.toFixed(2)+' RITUAL', sub:'all time'},
+          {label:'total volume', val:loading?'..':totalVolume.toFixed(4)+' RITUAL', sub:'all time'},
           {label:'unique creators', val:totalCreators.toString(), sub:'launched on sigil'},
         ].map(s => (
           <div key={s.label} style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'10px',padding:'1.25rem'}}>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.25)',letterSpacing:'.08em',marginBottom:'.5rem'}}>{s.label}</div>
-            <div style={{fontSize:'28px',fontWeight:800,color:'#ededf0',lineHeight:1,marginBottom:'.25rem'}}>{loading&&s.label!=='total collections'&&s.label!=='unique creators'?'—':s.val}</div>
+            <div style={{fontSize:'28px',fontWeight:800,color:'#ededf0',lineHeight:1,marginBottom:'.25rem'}}>{s.val}</div>
             <div style={{fontFamily:'DM Mono,monospace',fontSize:'9px',color:'rgba(255,255,255,.2)'}}>{s.sub}</div>
           </div>
         ))}
