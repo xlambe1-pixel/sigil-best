@@ -41,6 +41,19 @@ function MintToggle({ contractAddress }: { contractAddress: string }) {
   )
 }
 
+function ShareButton({ collection }: { collection: any }) {
+  const slug = collection.slug || collection.tx_hash || collection.id
+  const mintUrl = `https://sigil.best/collection/${slug}`
+  const tweetText = `🔮 Just launched "${collection.name}" on @sigilbest!\n\nMint now on Ritual Chain testnet 👇\n${mintUrl}\n\n#RitualChain #NFT #Web3`
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
+
+  return (
+    <a href={twitterUrl} target="_blank" style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.5)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.3rem .7rem',borderRadius:'6px',cursor:'pointer',textDecoration:'none',whiteSpace:'nowrap',display:'inline-flex',alignItems:'center',gap:'.3rem'}}>
+      𝕏 shill
+    </a>
+  )
+}
+
 export default function MyLaunches() {
   const { address, isConnected } = useAccount()
   const { connect } = useConnect()
@@ -100,10 +113,10 @@ export default function MyLaunches() {
         </div>
       ) : (
         <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
-          {launches.map((l,i) => (
+          {launches.map((l) => (
             <div key={l.id} style={{background:'#0f0f14',border:'.5px solid rgba(255,255,255,.07)',borderRadius:'12px',overflow:'hidden'}}>
               <div style={{display:'grid',gridTemplateColumns:'120px 1fr',alignItems:'stretch'}}>
-                <a href={`/collection/${l.tx_hash||l.id}`} style={{textDecoration:'none',color:'inherit'}}>
+                <a href={`/collection/${l.slug||l.tx_hash||l.id}`} style={{textDecoration:'none',color:'inherit'}}>
                   <div style={{height:'100%',minHeight:'100px',position:'relative',overflow:'hidden',background:'#0c0818'}}>
                     {l.artwork_url ? (
                       <img src={l.artwork_url} alt={l.name} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
@@ -119,8 +132,9 @@ export default function MyLaunches() {
                       <div style={{fontSize:'15px',fontWeight:600,marginBottom:'.15rem'}}>{l.name}</div>
                       <div style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.25)'}}>{l.type} · {l.supply?.toLocaleString()} items · {l.price} RITUAL</div>
                     </div>
-                    <div style={{display:'flex',gap:'.5rem',alignItems:'center'}}>
+                    <div style={{display:'flex',gap:'.5rem',alignItems:'center',flexWrap:'wrap',justifyContent:'flex-end'}}>
                       {l.contract_address && <MintToggle contractAddress={l.contract_address} />}
+                      <ShareButton collection={l} />
                       <button onClick={()=>setExpanded(expanded===l.id?null:l.id)} style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(124,111,247,.6)',background:'rgba(124,111,247,.06)',border:'.5px solid rgba(124,111,247,.2)',padding:'.3rem .7rem',borderRadius:'6px',cursor:'pointer',letterSpacing:'.04em'}}>
                         {expanded===l.id?'hide whitelist':'manage whitelist'}
                       </button>
