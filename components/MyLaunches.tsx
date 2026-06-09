@@ -49,7 +49,7 @@ function ShareButton({ collection }: { collection: any }) {
 
   return (
     <a href={twitterUrl} target="_blank" style={{fontFamily:'DM Mono,monospace',fontSize:'10px',color:'rgba(255,255,255,.5)',background:'rgba(255,255,255,.04)',border:'.5px solid rgba(255,255,255,.1)',padding:'.3rem .7rem',borderRadius:'6px',cursor:'pointer',textDecoration:'none',whiteSpace:'nowrap',display:'inline-flex',alignItems:'center',gap:'.3rem'}}>
-      𝕏 shill
+      𝕏 share
     </a>
   )
 }
